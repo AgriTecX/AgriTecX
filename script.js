@@ -155,7 +155,6 @@ menuLinks.forEach(function(link) {
         var targetContent = document.getElementById(targetId);
         if (targetContent) {
             targetContent.style.display = 'block';
-            toggleSearchBox();
         }
 
         // Update the URL without reloading the page
@@ -163,6 +162,7 @@ menuLinks.forEach(function(link) {
 
         // Update the content based on the URL hash
         showContentFromHash();
+        toggleSearchBox();
     });
 });
 
@@ -603,15 +603,15 @@ function toggleSearchBox() {
             shouldDisplaySearchBox = true;
             searchInput.value = ''; // Clear the value of the searchInput
 
-            // Trigger the filtering logic
+            // Trigger the filtering logic immediately after clearing the input
             filterTableRows(searchInput.value.toLowerCase());
         }
     });
 
-    searchBox.style.visibility= shouldDisplaySearchBox ? 'visible' : 'hidden';
+    searchBox.style.visibility = shouldDisplaySearchBox ? 'visible' : 'hidden';
 }
 
-// Initial check on page load
+
 toggleSearchBox();
 
 // JavaScript code to filter table rows based on search input
