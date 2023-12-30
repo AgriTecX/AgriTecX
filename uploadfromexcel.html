@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Firestore Transaction Upload</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+        }
+
+         #upload-container {
+            display: none;
+        }
+
+        #error-message {
+            color: red;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="login-container">
+        <h2>Login</h2>
+        <label for="email">Email:</label>
+        <input type="email" id="email" required>
+        <br>
+        <label for="password">Password:</label>
+        <input type="password" id="password" required>
+        <br>
+        <button onclick="login()">Login</button>
+        <div id="error-message"></div>
+    </div>
+
+    <div id="upload-container">
+        <h2>Upload Transaction</h2>
+        <input type="file" id="fileInput" accept=".xlsx, .xls" />
+        <button onclick="handleFileUpload()">Upload File</button>
+
+        <br>
+        <a href="#" onclick="logout()">Logout</a>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.6.3/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.3/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.3/firebase-firestore-compat.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.1/xlsx.full.min.js"></script>
+
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyC5HWHvk7Ba1bwMMFLXn2dRbvFB6H4Gpm0",
+    authDomain: "agritecx.firebaseapp.com",
+    projectId: "agritecx",
+    storageBucket: "agritecx.appspot.com",
+    messagingSenderId: "199815048001",
+    appId: "1:199815048001:web:75e11026a60e15f5a5cfc0",
+    measurementId: "G-6DCM8ZXJSE"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+
+        const auth = firebase.auth();
+        const firestore = firebase.firestore();
+
+        function login() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            auth.signInWithEmailAndPassword(email, password)
+                .then(() => {
+                    document.getElementById('login-container').style.display = 'none';
+                    document.getElementById('upload-container').style.display = 'block';
+                })
+                .catch(error => {
+                    document.getElementById('error-message').innerText = error.message;
+                });
+        }
+
+        function logout() {
+            auth.signOut().then(() => {
+                document.getElementById('login-container').style.display = 'block';
+                document.getElementById('upload-container').style.display = 'none';
+            });
+        }
+
+        // Function to handle file upload
+function handleFileUpload() {
+  const fileInput = document.getElementById('fileInput');
+  const file = fileInput.files[0];
+
+  if (file) {
+    const reader = new FileReader();
+
+    reader.onload = function (e) {
+      const data = e.target.result;
+      const workbook = XLSX.read(data, { type: 'binary' });
+      const sheetName = workbook.SheetNames[0];
+      const sheet = workbook.Sheets[sheetName];
+
+      const transactions = XLSX.utils.sheet_to_json(sheet, { header: ['title', 'date', 'amount', 'remarks'] });
+
+      uploadTransactionsToFirestore(transactions);
+    };
+
+    reader.readAsBinaryString(file);
+  } else {
+    alert('Please select a file.');
+  }
+}
+// Function to upload transactions to Firestore
+function uploadTransactionsToFirestore(transactions) {
+  const userId = firebase.auth().currentUser.uid;
+  const transactionsRef = firestore.collection('users').doc(userId).collection('transactions');
+
+  transactions.forEach(transaction => {
+    // Convert Excel date value to JavaScript Date object
+    const excelDate = transaction.date;
+    const jsDate = excelDate instanceof Date ? excelDate : new Date((excelDate - 25569) * 86400 * 1000);
+
+    // Check if the date is valid
+    if (!isNaN(jsDate.getTime())) {
+      // Add expense data to Firestore
+      transactionsRef.add({
+        title: transaction.title,
+        date: jsDate.toLocaleDateString(), // Store only the date portion
+        amount: -Math.abs(transaction.amount),
+        remarks: transaction.remarks || '', // Handle empty remarks
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+      })
+      .then(() => {
+        console.log('Transaction uploaded successfully');
+      })
+      .catch(error => {
+        console.error('Error uploading transaction: ', error);
+      });
+    } else {
+      console.error('Invalid date value:', excelDate);
+    }
+  });
+
+  alert('Transactions uploaded successfully');
+}
+
+
+
+
+    </script>
+</body>
+</html>

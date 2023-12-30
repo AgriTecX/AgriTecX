@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+    <link rel="stylesheet" href="login.css">
+    <title>AgriTecX signup</title>
+  
+    <script src="https://www.gstatic.com/firebasejs/9.6.3/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.3/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.3/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="signup.js"></script>
+</head>
+<body>
+    <header>
+        <nav>
+            <img src="white_nobglogo_small.png" alt="Logo">
+        </nav>
+    </header>
+      <div id="loading-overlay">
+        <div class="spinner center">
+             <div class="spinner-blade"></div>
+             <div class="spinner-blade"></div>
+             <div class="spinner-blade"></div>
+             <div class="spinner-blade"></div>
+             <div class="spinner-blade"></div>
+             <div class="spinner-blade"></div>
+             <div class="spinner-blade"></div>
+             <div class="spinner-blade"></div>
+             <div class="spinner-blade"></div>
+             <div class="spinner-blade"></div>
+             <div class="spinner-blade"></div>
+             <div class="spinner-blade"></div>
+         </div>
+      </div>    
+
+    <div class="container">
+        <form id="signupForm">
+            <h2>Sign Up for AgriTecX</h2>
+            <div class="error-message-container" id="signup-error-message-container"></div>
+            <input type="text" class="signup_name" placeholder="Name" required>
+            <input type="text" class="signup_email" placeholder="Email Address" required>
+            <input type="tel" class="signup_phone" placeholder="Phone Number" required>
+            <input type="password" class="signup_password" placeholder="Password" required>
+            <button type="submit" id="signupbtn">Sign Up</button>
+        </form>
+    <footer>
+        <a href="login.html" >Already have an account? Login</a>
+    </footer>
+
+  
+
+
+</body>
+
+</html>

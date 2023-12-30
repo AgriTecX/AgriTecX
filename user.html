@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>User Management</title>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.3/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.3/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.3/firebase-firestore-compat.js"></script>
+</head>
+<body>
+    <h1>User Management</h1>
+    <!-- Add a login form in your HTML -->
+<form id="loginForm">
+    <input type="email" id="email" placeholder="Email">
+    <input type="password" id="password" placeholder="Password">
+    <button type="button" onclick="signIn()">Sign In</button>
+</form>
+
+
+    <!-- Table to display users -->
+    <table id="userTable" border="1">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Email</th>
+                <th>Select</th>
+            </tr>
+        </thead>
+        <tbody id="userTableBody">
+            <!-- User data will be populated here -->
+        </tbody>
+    </table>
+    <br>
+    <button onclick="deleteSelectedUsers()">Delete Selected Users</button>
+
+    <script>
+        // Your Firebase config
+        const firebaseConfig = {
+            apiKey: "AIzaSyC5HWHvk7Ba1bwMMFLXn2dRbvFB6H4Gpm0",
+            authDomain: "agritecx.firebaseapp.com",
+            projectId: "agritecx",
+            storageBucket: "agritecx.appspot.com",
+            messagingSenderId: "199815048001",
+            appId: "1:199815048001:web:75e11026a60e15f5a5cfc0",
+            measurementId: "G-6DCM8ZXJSE"
+
+        };
+
+
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+
+// Access Firebase services
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+// Function to sign in a user
+function signIn() {
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+
+    firebase.auth().signInWithEmailAndPassword(email, password)
+        .then((userCredential) => {
+            // Signed in
+            const user = userCredential.user;
+            console.log(`User ${user.uid} signed in successfully!`);
+            // After signing in, you can fetch users' data
+            fetchAllUsers();
+        })
+        .catch((error) => {
+            console.error("Error signing in: ", error);
+        });
+}
+
+// Function to fetch all users' data
+function fetchAllUsers() {
+    db.collection("users").get().then((querySnapshot) => {
+        let userData = "";
+        querySnapshot.forEach((doc) => {
+            const userId = doc.id;
+            const userEmail = doc.data().email;
+            userData += `
+                <tr>
+                    <td>${userId}</td>
+                    <td>${userEmail}</td>
+                    <td><input type="checkbox" name="userCheckbox" value="${userId}"></td>
+                </tr>`;
+        });
+        document.getElementById('userTableBody').innerHTML = userData;
+    }).catch((error) => {
+        console.error("Error getting users: ", error);
+    });
+}
+
+// Function to delete selected users from both Firebase Authentication and Firestore
+// Function to delete selected users from both Firebase Authentication and Firestore
+function deleteSelectedUsers() {
+    const checkboxes = document.querySelectorAll('input[name=userCheckbox]:checked');
+    checkboxes.forEach((checkbox) => {
+        const userId = checkbox.value;
+
+        // Delete user from Firebase Authentication
+        firebase.auth().currentUser.delete()
+            .then(() => {
+                console.log(`User ${userId} successfully deleted from Authentication`);
+            })
+            .catch((error) => {
+                console.error(`Error removing user ${userId} from Authentication: `, error);
+            });
+
+        // Delete user data from Firestore
+        db.collection("users").doc(userId).delete().then(() => {
+            console.log(`User ${userId} data successfully deleted from Firestore`);
+            // Refresh the table after deletion
+            fetchAllUsers();
+        }).catch((error) => {
+            console.error(`Error removing user ${userId} data from Firestore: `, error);
+        });
+    });
+}
+
+    </script>
+</body>
+</html>

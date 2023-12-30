@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<!-- Coding By CodingNepal - codingnepalweb.com -->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="images/favicon.png">
+
+    <!----======== CSS ======== -->
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js"></script>
+   
+    <!----===== Iconscout CSS ===== -->
+    <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.0/css/line.css">
+
+    <!----===== firebase ===== -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.3/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.3/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.3/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
+
+    <title>AgriTecX</title>
+</head>
+<body>
+    <nav>
+        <div class="logo-name">
+            <div class="logo-image">
+               <img src="images/favicon.png" alt="">
+            </div>
+
+            <span class="logo_name">AgriTecX</span>
+        </div>
+            <div class="menu-items">
+                <ul class="nav-links">
+                    <li><a href="#dashboard-content" class="menu-link">
+                        <i class="uil uil-estate"></i>
+                        <span class="link-name">Dashboard</span>
+                    </a></li>
+                    <hr>
+                    <li><a href="#add-transaction" class="menu-link">
+                        <i class="uil uil-plus-circle"></i>
+                        <span class="link-name">Add Transaction</span>
+                    </a></li>
+                    <li><a href="#view-transactions" class="menu-link">
+                        <i class="uil uil-transaction"></i>
+                        <span class="link-name">View Transactions</span>
+                    </a></li>
+                    <hr>
+                    <li><a href="#add-pesticides" class="menu-link">
+                        <i class="uil uil-capsule"></i>
+                        <span class="link-name">Add Pesticides</span>
+                    </a></li>
+                    <li><a href="#view-pesticides" class="menu-link">
+                        <i class="uil uil-prescription-bottle"></i>
+                        <span class="link-name">View Pesticides</span>
+                    </a></li>
+                </ul>
+        
+            <ul class="logout-mode">
+                <li><a href="#profile" class="menu-link ">
+                    <i class="uil uil-user-circle"></i>
+                    <span class="link-name" id="userNameLink">User Name</span>
+                </a></li>
+                <li><a href="#" id="signoutbtn">
+                    <i class="uil uil-signout"></i>
+                    <span class="link-name" >Logout</span>
+                </a></li>
+
+                <li class="mode">
+                    <a href="#">
+                        <i class="uil uil-moon"></i>
+                    <span class="link-name">Dark Mode</span>
+                </a>
+
+                <div class="mode-toggle">
+                  <span class="switch"></span>
+                </div>
+            </li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="dashboard">
+        <div class="top">
+            <i class="uil uil-bars sidebar-toggle"></i>
+
+            <div class="search-box" id="searchBox" style="display:none;">
+                <i class="uil uil-search"></i>
+                <input type="text" id="searchInput" placeholder="Search here...">
+            </div>
+            
+           <img class="right-logo" src="images/favicon.png" > 
+        </div>
+
+        <div class="dash-content" id="dashboard-content">
+            <div class="overview">
+                <div class="title greetings">
+                    <span class="text"id="greeting">Good Morning!</span><br>
+                </div>
+                <div class="title user">
+                    <span class="text" id="userNameGreetings" >User Name</span><br>
+                </div>
+
+                <hr>
+                <div class="title">
+                    <i class="uil uil-tachometer-fast-alt"></i>
+                    <span class="text">Dashboard</span>
+                </div>
+
+                <div class="boxes">
+                    <div class="box box1">
+                        <i class="uil uil-arrow-up-left" style="color:#FF4842;"></i>
+                        <span class="text">Total Debits</span>
+                        <span class="number"id="totalDebit"style="color:#FF4842;"> 0</span>
+                    </div>
+                    <div class="box box2">
+                        <i class="uil uil-arrow-down-right" style="color:#6DD64D"></i>
+                        <span class="text">Total Credit</span>
+                        <span class="number" id="totalCredit" style="color:#6DD64D">0</span>
+                    </div>
+                    <div class="box box3">
+                        <i class="uil uil-bolt-alt" style="color:#fa6e02"></i>
+                        <span class="text">Total Trasactions</span>
+                        <span class="number" id="totalTransactions"style="color:#fa6e02">0</span>
+                    </div>
+
+                </div>
+                <div class="boxes">
+                    <div class="box box1">
+                        <i class="uil uil-tablets" style="color:#f2d040"></i>
+                        <span class="text">Total Pesticides</span>
+                        <span class="number"style="color:#f2d040">0</span>
+                    </div>
+                    <div class="box box2">
+                        <i class="uil uil-exclamation-triangle"></i>
+                        <span class="text">Coming Soon</span>
+                        <span class="number">-</span>
+                    </div>
+                    <div class="box box3">
+                        <i class="uil uil-exclamation-triangle"></i>
+                        <span class="text">Coming Soon</span>
+                        <span class="number">-</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="activity">
+                <div class="title">
+                    <i class="uil uil-clock-three"></i>
+                    <span class="text">Recent Transactions</span>
+                </div>
+
+                <div class="activity-data">
+                        <table id="recentTransactionsTable" class="table-common">
+                            <thead>
+                                <tr>
+                                    <th>Status</th>
+                                    <th>Date</th>
+                                    <th>Title</th>
+                                    <th>Amount</th>
+                                    <th>Remarks</th>
+                                    <th>Added Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Rows will be dynamically added here using JavaScript -->
+                            </tbody>
+                        </table>
+                </div>
+            </div>
+        </div>
+<!----------------------------------------------------------------------popup---------------------->
+
+        <div class="popup" id="popup">
+            <div class="popup-content" id="popupContent"></div>
+        </div>
+<!----------------------------------------------------------------------add transaction content---------------------->
+<div class="dash-content" id="add-transaction" style="display: none;">
+    <div class="overview">
+                <div class="title greetings">
+                    <i class="uil uil-plus-circle"></i>
+                    <span class="text">Add Transaction</span>
+                </div>
+                <form id="transaction-form">
+        <label for="expenseTitle">Title:</label>
+        <input type="text" id="expenseTitle" name="expenseTitle" placeholder="Enter the title of transaction" required>
+
+        <label for="expenseDate">Date:</label>
+        <input type="date" id="expenseDate" name="expenseDate" placeholder="Enter date of transaction" required>
+
+        <label for="expenseAmount">Amount:</label>
+        <input type="number" id="expenseAmount" name="expenseAmount" placeholder="Enter the amount" required>
+
+        <div class="toggle-container">
+                <label class="toggle-label" >Select transaction type:</label>
+
+                <label class="toggle-label"style="color:#FF4842;">Debit</label>
+                <label class="toggle-switch">
+                    <input type="checkbox"id="toggleSwitch">
+                    <span class="slider"></span>
+                </label>
+                <label class="toggle-label" style="color:#6DD64D">Credit</label>
+
+        </div>
+
+        <label for="expenseRemarks">Remarks:</label>
+        <textarea id="expenseRemarks" name="expenseRemarks" rows="2" placeholder="Comments(Optional)" ></textarea>
+
+        <button type="submit" id="addTransactionBtn" disabled>Add Transaction</button>
+    </form>
+</div>
+</div>
+
+
+<!----------------------------------------------------------------------view transaction content---------------------->
+
+    <div class="dash-content" id="view-transactions" style="display: none;">
+        <div class="activity">
+                <div class="title greetings">
+                    <i class="uil uil-transaction"></i>
+                    <span class="text">All Transactions</span>
+                </div>
+                <div class="table-actions" id=alltransactiontbl>
+                <button id="deleteSelectedBtn">Delete </button>
+                </div>
+                <div class="activity-data">
+
+                        <table id="allTransactionsTable" class="table-common">
+                            <thead>
+                                <tr>
+                                    <th> <input type="checkbox"id="toggleSelectAllBtn"> </th>
+                                    <th>
+                                        <i class="uil uil-arrow-up-left" style="color:#FF4842;"></i>
+                                        <i class="uil uil-arrow-down-right" style="color:#6DD64D"></i>
+                                    </th>
+                                    <th>Date</th>
+                                    <th>Title</th>
+                                    <th>Amount</th>
+                                    <th>Remarks</th>
+                                    <th>Added Date</th>
+                                    <th>Edit</th>
+                                    <th>Delete</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Rows will be dynamically added here using JavaScript -->
+                            </tbody>
+                        </table>
+                        
+                </div>
+            </div>
+    </div>
+
+<!----------------------------------------------------------------------view content---------------------->
+
+    <div class="dash-content" id="add-pesticides" style="display: none;">
+    </div>
+
+    <div class="dash-content" id="view-pesticides" style="display: none;">
+    </div>
+
+    </section>
+
+    <div id="loading-overlay">
+        <div class="spinner center">
+             <div class="spinner-blade"></div>
+             <div class="spinner-blade"></div>
+             <div class="spinner-blade"></div>
+             <div class="spinner-blade"></div>
+             <div class="spinner-blade"></div>
+             <div class="spinner-blade"></div>
+             <div class="spinner-blade"></div>
+             <div class="spinner-blade"></div>
+             <div class="spinner-blade"></div>
+             <div class="spinner-blade"></div>
+             <div class="spinner-blade"></div>
+             <div class="spinner-blade"></div>
+         </div>
+      </div>
+
+
+</body>
+</html>

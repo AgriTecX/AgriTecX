@@ -1,0 +1,1023 @@
+/* ===== Google Font Import - Poppins ===== */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600&display=swap');
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+:root{
+    /* ===== Colors ===== */
+    --primary-color: #fdbd39;
+    --panel-color: #FFF;
+    --text-color: #000;
+    --black-light-color: #707070;
+    --border-color: #e6e5e5;
+    --toggle-color: #DDD;
+    --box1-color: #e6e5e5;
+    --box2-color: #FFE6AC;
+    --box3-color: rgba(89, 161, 248, 0.74);
+    --title-icon-color: #fff;
+    --green:#6DD64D;
+    --green-hover:#45a049;
+    --red:#FF4842;
+    --red-hover:#d71302;
+    --blue:#2196F3;
+    --blue-hover:#0b7dda;
+    --disabled-btn-color:#DDD;
+    
+    /* ====== Transition ====== */
+    --tran-05: all 0.5s ease;
+    --tran-03: all 0.3s ease;
+    --tran-03: all 0.2s ease;
+}
+
+body{
+    min-height: 100vh;
+    background-color: var(--primary-color);
+}
+body.dark{
+    --primary-color: #272c35;
+    --panel-color:#1a1f25;
+    --text-color: #CCC;
+    --black-light-color: #CCC;
+    --border-color: #4D4C4C;
+    --toggle-color: #FFF;
+    --box1-color: #272c35;
+    --box2-color: #272c35;
+    --box3-color: #272c35;
+    --title-icon-color: #CCC;
+
+    --disabled-btn-color:#272c35;
+
+
+}
+/* === Custom Scroll Bar CSS === */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--primary-color);
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #0b3cc1;
+}
+
+body.dark::-webkit-scrollbar-thumb:hover,
+body.dark .activity-data::-webkit-scrollbar-thumb:hover{
+    background: #3A3B3C;
+}
+
+hr {
+  display: block;
+  height: 1px;
+  border: 0;
+  border-top: 1px solid var(--border-color);
+  margin: 1em 0;
+  padding: 0;
+}
+
+nav{
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 250px;
+    padding: 10px 14px;
+    background-color: var(--panel-color);
+    border-right: 1px solid var(--border-color);
+    transition: var(--tran-05);
+}
+nav.close{
+    width: 73px;
+}
+nav .logo-name{
+    display: flex;
+    align-items: center;
+}
+nav .logo-image{
+    display: flex;
+    justify-content: center;
+    min-width: 45px;
+}
+nav .logo-image img{
+    width: 40px;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+nav .logo-name .logo_name{
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--text-color);
+    margin-left: 14px;
+    transition: var(--tran-05);
+}
+nav.close .logo_name{
+    opacity: 0;
+    pointer-events: none;
+}
+nav .menu-items{
+    margin-top: 40px;
+    height: calc(100% - 90px);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+.menu-items li{
+    list-style: none;
+}
+.menu-items li a{
+    display: flex;
+    align-items: center;
+    height: 50px;
+    text-decoration: none;
+    position: relative;
+}
+.nav-links li a:hover:before,
+.nav-links li a.active:before {
+    content: "";
+    position: absolute;
+    left: -7px;
+    height: 5px;
+    width: 5px;
+    border-radius: 50%;
+    background-color: var(--primary-color);
+}
+
+body.dark .nav-links li a:hover:before,
+body.dark .nav-links li a.active:before {
+    background-color: var(--green);
+}
+
+.menu-items li a i {
+    font-size: 24px;
+    min-width: 45px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--black-light-color);
+}
+
+.menu-items li a .link-name {
+    font-size: 18px;
+    font-weight: 400;
+    color: var(--black-light-color);
+    transition: var(--tran-05);
+}
+
+nav.close li a .link-name {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.nav-links li a:hover i,
+.nav-links li a.active i,
+.nav-links li a:hover .link-name,
+.nav-links li a.active .link-name {
+    color: var(--primary-color);
+}
+
+body.dark .nav-links li a:hover i,
+body.dark .nav-links li a.active i,
+body.dark .nav-links li a:hover .link-name,
+body.dark .nav-links li a.active .link-name {
+    color: var(--green);
+}
+
+
+.menu-items .logout-mode {
+    padding-top: 10px;
+    border-top: 1px solid var(--border-color);
+}
+.menu-items .logout-mode .uil.uil-user-circle, #userNameLink {
+    color:var(--green);
+}
+
+.menu-items .mode{
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+}
+.menu-items .mode-toggle{
+    position: absolute;
+    right: 14px;
+    height: 50px;
+    min-width: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+.mode-toggle .switch{
+    position: relative;
+    display: inline-block;
+    height: 22px;
+    width: 40px;
+    border-radius: 25px;
+    background-color: var(--toggle-color);
+}
+.switch:before{
+    content: "";
+    position: absolute;
+    left: 5px;
+    top: 50%;
+    transform: translateY(-50%);
+    height: 15px;
+    width: 15px;
+    background-color: var(--panel-color);
+    border-radius: 50%;
+    transition: var(--tran-03);
+}
+body.dark .switch:before{
+    left: 20px;
+}
+
+.dashboard{
+    position: relative;
+    left: 250px;
+    background-color: var(--panel-color);
+    min-height: 100vh;
+    width: calc(100% - 250px);
+    padding: 10px 14px;
+    transition: var(--tran-05);
+}
+nav.close ~ .dashboard{
+    left: 73px;
+    width: calc(100% - 73px);
+}
+.dashboard .top{
+    position: fixed;
+    top: 0;
+    left: 250px;
+    display: flex;
+    width: calc(100% - 250px);
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 14px;
+    background-color: var(--panel-color);
+    transition: var(--tran-05);
+    z-index: 10;
+}
+nav.close ~ .dashboard .top{
+    left: 73px;
+    width: calc(100% - 73px);
+}
+.dashboard .top .sidebar-toggle{
+    font-size: 26px;
+    color: var(--text-color);
+    cursor: pointer;
+}
+.dashboard .top .search-box{
+    position: relative;
+    height: 45px;
+    max-width: 600px;
+    width: 100%;
+    margin: 0 30px;
+}
+.top .search-box input{
+    position: absolute;
+    border: 1px solid var(--border-color);
+    background-color: var(--panel-color);
+    padding: 0 25px 0 50px;
+    border-radius: 5px;
+    height: 100%;
+    width: 100%;
+    color: var(--text-color);
+    font-size: 15px;
+    font-weight: 400;
+    outline: none;
+}
+.top .search-box i{
+    position: absolute;
+    left: 15px;
+    font-size: 22px;
+    z-index: 10;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--black-light-color);
+}
+.top img{
+    width: 30px;
+    border-radius: 50%;
+}
+.dashboard .dash-content{
+    padding-top: 10px;
+}
+.dash-content .title.greetings{
+   margin-top: 50px;
+}
+.dash-content .title.greetings .text{
+   font-size: 20px;
+}
+.dash-content .title.user{
+   margin-top: 10px;
+}
+.dash-content .title.user .text {
+   color: var(--green);
+}
+
+.dash-content .title{
+    display: flex;
+    align-items: center;
+    margin: 20px 0 10px 0;
+}
+.dash-content .title i{
+    position: relative;
+    height: 35px;
+    width: 35px;
+    background-color: var(--primary-color);
+    border-radius: 6px;
+    color: var(--title-icon-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+}
+.dash-content .title .text{
+    font-size: 24px;
+    font-weight: 500;
+    color: var(--text-color);
+    margin-left: 10px;
+}
+.dash-content .boxes{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+.dash-content .boxes .box{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border-radius: 12px;
+    width: calc(100% / 3 - 15px);
+    padding: 15px 20px;
+    background-color: var(--box1-color);
+    transition: var(--tran-05);
+    margin-top: 20px;
+}
+.boxes .box i{
+    font-size: 35px;
+    color: var(--text-color);
+}
+.boxes .box .text{
+    white-space: nowrap;
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--text-color);
+}
+.boxes .box .number{
+    font-size: 40px;
+    font-weight: 500;
+    color: var(--text-color);
+}
+.boxes .box.box2{
+    background-color: var(--box2-color);
+}
+.boxes .box.box3{
+    background-color: var(--box3-color);
+}
+.dash-content .activity .activity-data{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+/* Apply styles to the table */
+.activity-data table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px; /* Adjust the margin as needed */
+  text-align: left;
+}
+.table-common thead tr {
+  background-color: var(--toggle-color);
+}
+
+body.dark .table-common thead tr {
+  background-color: var(--primary-color);
+}
+.table-common thead tr th:first-child {
+  border-top-left-radius: 6px;
+  border-bottom-left-radius: 6px;
+}
+
+.table-common thead tr th:last-child {
+  border-top-right-radius: 6px;
+  border-bottom-right-radius: 6px;
+}
+
+.table-common td:first-child {
+  text-align: center;
+}
+/* Apply styles to the table header */
+.activity-data th {
+  font-size: 20px;
+  font-weight: 500;
+  color: var(--text-color);
+  padding: 10px; /* Adjust padding as needed */
+  border-bottom: 2px solid var(--border-color); /* Add a border bottom to header */
+}
+
+/* Apply styles to the table cells */
+.activity-data td {
+  font-size: 18px;
+  font-weight: 400;
+  padding: 10px; /* Adjust padding as needed */
+  white-space: nowrap;
+  color: var(--text-color);
+  border-bottom: 1px solid var(--border-color); /* Add a border bottom to cells */
+}
+
+/* Apply styles to alternate rows for better readability */
+.activity-data tr:nth-child(even) {
+  background-color: var(--panel-color); /* Adjust background color as needed */
+}
+
+/* Hide the default table border and spacing */
+.activity-data table, .activity-data th, .activity-data td {
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* Adjust scrollbar styles if needed */
+.activity .activity-data::-webkit-scrollbar {
+    height: 4px; /* Adjust the height as needed */
+}
+
+.activity .activity-data::-webkit-scrollbar-thumb {
+    background: var(--primary-color);
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.activity .activity-data::-webkit-scrollbar-thumb:hover {
+    background: #0b3cc1;
+}
+/* Apply margin between columns */
+.activity-data th,
+.activity-data td {
+  padding: 10px; /* Adjust padding as needed */
+  margin: 5px;  /* Adjust margin as needed */
+}
+
+@media (min-width:400px) {
+      img.right-logo{
+    display:none;
+
+}}
+@media (max-width: 1000px) {
+  
+    nav{
+        width: 73px;
+    }
+    nav.close{
+        width: 250px;
+    }
+    nav .logo_name{
+        opacity: 0;
+        pointer-events: none;
+    }
+    nav.close .logo_name{
+        opacity: 1;
+        pointer-events: auto;
+    }
+    nav li a .link-name{
+        opacity: 0;
+        pointer-events: none;
+    }
+    nav.close li a .link-name{
+        opacity: 1;
+        pointer-events: auto;
+    }
+    nav ~ .dashboard{
+        left: 73px;
+        width: calc(100% - 73px);
+    }
+    nav.close ~ .dashboard{
+        left: 250px;
+        width: calc(100% - 250px);
+    }
+    nav ~ .dashboard .top{
+        left: 73px;
+        width: calc(100% - 73px);
+    }
+    nav.close ~ .dashboard .top{
+        left: 250px;
+        width: calc(100% - 250px);
+    }
+    .activity .activity-data{
+        overflow-X: scroll;
+    }
+
+}
+@media (max-width: 780px) {
+    .dash-content .boxes .box{
+        width: calc(100% /  - 15px);
+        margin-top: 15px;
+    }
+
+}
+@media (max-width: 560px) {
+    .dash-content .boxes .box{
+        width: 100% ;
+    }
+}
+@media (max-width: 400px) {
+    .activity-data .data-title{
+        font-size: 13px;
+    }
+    .activity-data .data .data-list{
+        font-size: 12px;
+    }
+
+    #alltransactiontbl button {
+     font-size: 13px;
+    }
+
+    nav{
+        width: 0px;
+    }
+    nav.close{
+        width: 73px;
+    }
+    nav .logo_name{
+        opacity: 0;
+        pointer-events: none;
+    }
+    nav.close .logo_name{
+        opacity: 0;
+        pointer-events: none;
+    }
+    nav li a .link-name{
+        opacity: 0;
+        pointer-events: none;
+    }
+    nav.close li a .link-name{
+        opacity: 0;
+        pointer-events: none;
+    }
+    nav ~ .dashboard{
+        left: 0;
+        width: 100%;
+    }
+    nav.close ~ .dashboard{
+        left: 73px;
+        width: calc(100% - 73px);
+    }
+    nav ~ .dashboard .top{
+        left: 0;
+        width: 100%;
+    }
+    nav.close ~ .dashboard .top{
+        left: 0;
+        width: 100%;
+    }
+    .activity-data th {
+        font-size: 15px;
+   }
+
+    .activity-data td {
+        font-size: 13px;
+    }   
+
+}
+
+
+
+.popup {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background: transparent;
+    justify-content: flex-start; /* Align items at the start (top) */
+    align-items: center;
+    z-index: 100;
+    animation-duration: 0.5s; /* Set the animation duration */
+}
+
+.popup-content {
+    background: var(--green); /* Default background color for success */
+    color: white;
+    padding: 15px;
+    text-align: center;
+    width: 100%;
+    box-sizing: border-box;
+    animation-fill-mode: both; /* Ensure the animation styles are applied to both ends */
+}
+
+.popup-content.error {
+    background: red; /* Background color for error */
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(-100%);
+    }
+    to {
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideOut {
+    from {
+        transform: translateY(0);
+    }
+    to {
+        transform: translateY(-100%);
+    }
+}
+
+/* Add animation classes to handle slide in and slide out */
+.popup.slide-in {
+    animation-name: slideIn;
+}
+
+.popup.slide-out {
+    animation-name: slideOut;
+}
+
+
+
+
+
+#add-transaction form {
+    background-color: var(--panel-color);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    padding: 20px;
+    border-radius: 8px;
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+#add-transaction form label {
+    color: var(--black-light-color);
+    display: block;
+    margin-bottom: 8px;
+}
+
+#add-transaction form input,
+#add-transaction form textarea,
+#add-transaction form select {
+    width: 100%;
+    background-color: var(--box1-color);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    padding: 10px;
+    margin-bottom: 16px;
+    box-sizing: border-box;
+    border-radius: 4px;
+}
+
+
+#addTransactionBtn {
+    width: 100%;
+    background-color: var(--green);
+    color: #fff;
+    padding: 10px;
+    border: none;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: var(--tran-03);
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+/* Add styles for the disabled button */
+#addTransactionBtn:disabled {
+    background-color: var(--disabled-btn-color); 
+    cursor: not-allowed;
+    color:var(--text-color); 
+}
+
+#addTransactionBtn:hover {
+    background-color:var(--green-hover) ; 
+}
+
+#addTransactionBtn:disabled:hover {
+    background-color: var(--disabled-btn-color); 
+}
+.toggle-container {
+    display: flex;
+    align-items: center;
+}
+
+.toggle-label {
+    font-size: 14px;
+    color: #fa6e02; /* Orange color for Debit */
+    margin-right: 10px;
+}
+
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 40px;
+    height: 20px;
+    cursor: pointer;
+    margin-right: 10px;
+}
+
+.toggle-switch .slider {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--toggle-color);
+    border-radius: 20px;
+    transition: .4s;
+}
+
+.toggle-switch input {
+    display: none;
+}
+.toggle-switch input + .slider:before {
+    background-color: red
+}
+.toggle-switch input:checked + .slider {
+    background-color: var(--toggle-color); /* Green color for Credit */
+}
+
+.toggle-switch input:focus + .slider {
+    box-shadow: 0 0 1px #2196F3;
+}
+
+.toggle-switch input:checked + .slider:before {
+    transform: translateX(20px);
+    background-color: var(--green);
+}
+
+.toggle-switch .slider:before {
+    position: absolute;
+    content: '';
+    height: 16px;
+    width: 16px;
+    left: 2px;
+    bottom: 2px;
+    background-color: white;
+    border-radius: 50%;
+    transition: .4s;
+}
+
+
+
+
+
+
+/* Style the checkboxes */
+#allTransactionsTable input[type="checkbox"] {
+  margin: 0;
+  padding: 0;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  border: 2px solid #7E7E7E; /* Border color */
+  width: 20px; /* Adjust the width */
+  height: 20px; /* Adjust the height */
+  border-radius: 50%; /* Make it round */
+  outline: none;
+  cursor: pointer;
+  vertical-align: middle;
+  position: relative;
+}
+
+/* Style the checked state of the checkboxes */
+#allTransactionsTable input[type="checkbox"]:checked {
+  border-color: var(--red);
+}
+
+/* Style the checkmark inside the checkbox */
+#allTransactionsTable input[type="checkbox"]::before {
+  content: '\2713'; /* Unicode checkmark symbol */
+  display: block;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: var(--red); /* Checkmark color */
+  font-size: 14px; /* Adjust the font size */
+  font-weight: bold;
+  visibility: hidden;
+}
+
+/* Show the checkmark when the checkbox is checked */
+#allTransactionsTable input[type="checkbox"]:checked::before {
+  visibility: visible;
+}
+
+#alltransactiontbl {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+#deleteSelectedBtn,
+#allTransactionsTable  button{
+    padding: 5px 8px;
+    border: none;
+    color: var(--text-color);
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+}
+
+
+#allTransactionsTable th:first-child,
+#allTransactionsTable th:nth-child(2),
+#allTransactionsTable td:first-child,
+#allTransactionsTable td:nth-child(2) {
+  text-align: center;
+}
+
+
+#allTransactionsTable button[id^="editButton_"] {
+    background-color: var(--blue); /* Blue color */
+    color: #fff; /* White text color */
+}
+
+#allTransactionsTable button[id^="editButton_"]:hover {
+    background-color: var(--blue-hover); /* Darker blue color on hover */
+}
+
+#deleteSelectedBtn,
+#allTransactionsTable button[id^="deleteButton_"] {
+    background-color: var(--red); /* Red color */
+    color: #fff; /* White text color */
+}
+
+#allTransactionsTable button[id^="deleteButton_"]:hover {
+    background-color: var(--red-hover); /* Darker red color on hover */
+}
+
+
+
+/*----------------------------------------------------------------------------------------------Loading Screeen---------------------------------------------------------------------*/
+#loading-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5); /* Semi-transparent black background */
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.spinner {
+  font-size: 28px;
+  position: relative;
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+}
+
+.spinner.center {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  margin: auto;
+}
+
+.spinner .spinner-blade {
+  position: absolute;
+  left: 0.4629em;
+  bottom: 0;
+  width: 0.074em;
+  height: 0.2777em;
+  border-radius: 0.0555em;
+  background-color: transparent;
+  -webkit-transform-origin: center -0.2222em;
+  -ms-transform-origin: center -0.2222em;
+  transform-origin: center -0.2222em;
+  animation: spinner-fade9234 1s infinite linear;
+}
+
+.spinner .spinner-blade:nth-child(1) {
+  -webkit-animation-delay: 0s;
+  animation-delay: 0s;
+  -webkit-transform: rotate(0deg);
+  -ms-transform: rotate(0deg);
+  transform: rotate(0deg);
+}
+
+.spinner .spinner-blade:nth-child(2) {
+  -webkit-animation-delay: 0.083s;
+  animation-delay: 0.083s;
+  -webkit-transform: rotate(30deg);
+  -ms-transform: rotate(30deg);
+  transform: rotate(30deg);
+}
+
+.spinner .spinner-blade:nth-child(3) {
+  -webkit-animation-delay: 0.166s;
+  animation-delay: 0.166s;
+  -webkit-transform: rotate(60deg);
+  -ms-transform: rotate(60deg);
+  transform: rotate(60deg);
+}
+
+.spinner .spinner-blade:nth-child(4) {
+  -webkit-animation-delay: 0.249s;
+  animation-delay: 0.249s;
+  -webkit-transform: rotate(90deg);
+  -ms-transform: rotate(90deg);
+  transform: rotate(90deg);
+}
+
+.spinner .spinner-blade:nth-child(5) {
+  -webkit-animation-delay: 0.332s;
+  animation-delay: 0.332s;
+  -webkit-transform: rotate(120deg);
+  -ms-transform: rotate(120deg);
+  transform: rotate(120deg);
+}
+
+.spinner .spinner-blade:nth-child(6) {
+  -webkit-animation-delay: 0.415s;
+  animation-delay: 0.415s;
+  -webkit-transform: rotate(150deg);
+  -ms-transform: rotate(150deg);
+  transform: rotate(150deg);
+}
+
+.spinner .spinner-blade:nth-child(7) {
+  -webkit-animation-delay: 0.498s;
+  animation-delay: 0.498s;
+  -webkit-transform: rotate(180deg);
+  -ms-transform: rotate(180deg);
+  transform: rotate(180deg);
+}
+
+.spinner .spinner-blade:nth-child(8) {
+  -webkit-animation-delay: 0.581s;
+  animation-delay: 0.581s;
+  -webkit-transform: rotate(210deg);
+  -ms-transform: rotate(210deg);
+  transform: rotate(210deg);
+}
+
+.spinner .spinner-blade:nth-child(9) {
+  -webkit-animation-delay: 0.664s;
+  animation-delay: 0.664s;
+  -webkit-transform: rotate(240deg);
+  -ms-transform: rotate(240deg);
+  transform: rotate(240deg);
+}
+
+.spinner .spinner-blade:nth-child(10) {
+  -webkit-animation-delay: 0.747s;
+  animation-delay: 0.747s;
+  -webkit-transform: rotate(270deg);
+  -ms-transform: rotate(270deg);
+  transform: rotate(270deg);
+}
+
+.spinner .spinner-blade:nth-child(11) {
+  -webkit-animation-delay: 0.83s;
+  animation-delay: 0.83s;
+  -webkit-transform: rotate(300deg);
+  -ms-transform: rotate(300deg);
+  transform: rotate(300deg);
+}
+
+.spinner .spinner-blade:nth-child(12) {
+  -webkit-animation-delay: 0.913s;
+  animation-delay: 0.913s;
+  -webkit-transform: rotate(330deg);
+  -ms-transform: rotate(330deg);
+  transform: rotate(330deg);
+}
+
+@keyframes spinner-fade9234 {
+  0% {
+    background-color: #69717d;
+  }
+
+  100% {
+    background-color: transparent;
+  }
+
+/*----------------------------------------------------------------------------------------------Loading Screeen ends---------------------------------------------------------------------*/
