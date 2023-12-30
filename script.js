@@ -118,19 +118,30 @@ var menuLinks = document.querySelectorAll('.menu-link');
 // Get all elements with the class "dash-content"
 var dashContents = document.querySelectorAll('.dash-content');
 
+// Function to show the content based on the URL hash
+function showContentFromHash() {
+    var currentHash = window.location.hash;
+    var targetId = currentHash.substring(1);
+
+    // Remove "active" class from all menu links
+    menuLinks.forEach(function(link) {
+        link.classList.remove('active');
+        if (link.getAttribute('href') === currentHash) {
+            link.classList.add('active');
+        }
+    });
+
+    // Show the corresponding dash content based on the current URL
+    dashContents.forEach(function(content) {
+        content.style.display = content.id === targetId || (!currentHash && content.id === 'dashboard-content') ? 'block' : 'none';
+    });
+}
+
 // Add a click event listener to each menu link
 menuLinks.forEach(function(link) {
     link.addEventListener('click', function(event) {
         // Prevent the default behavior of the link
         event.preventDefault();
-
-        // Remove "active" class from all menu links
-        menuLinks.forEach(function(link) {
-            link.classList.remove('active');
-        });
-
-        // Add "active" class to the clicked menu link
-        link.classList.add('active');
 
         // Get the href value of the clicked link
         var targetId = link.getAttribute('href').substring(1);
@@ -149,27 +160,29 @@ menuLinks.forEach(function(link) {
 
         // Update the URL without reloading the page
         history.pushState(null, null, '#' + targetId);
+
+        // Update the content based on the URL hash
+        showContentFromHash();
     });
 });
 
 // Listen for changes to the URL
-window.addEventListener('popstate', function(event) {
-    // Update the active menu link based on the current URL
-    var currentHash = window.location.hash;
-    menuLinks.forEach(function(link) {
-        link.classList.remove('active');
-        if (link.getAttribute('href') === currentHash) {
-            link.classList.add('active');
-        }
-    });
+window.addEventListener('popstate', showContentFromHash);
 
-    // Show the corresponding dash content based on the current URL
-    var targetId = currentHash.substring(1);
-    dashContents.forEach(function(content) {
-        content.style.display = content.id === targetId ? 'block' : 'none';
-    });
-});
+// Show content based on the initial URL on page load
+showContentFromHash();
 
+// Update the URL when loaded without a hash
+if (!window.location.hash) {
+    window.location.replace('#dashboard');
+}
+
+
+// Listen for changes to the URL
+window.addEventListener('popstate', showContentFromHash);
+
+// Show content based on the initial URL on page load
+showContentFromHash();
 
 //--------------------------------------------------------------------------------Slidein PopUp--------------------------------------------------------//
 var isPopupVisible = false;
@@ -297,7 +310,10 @@ function addTransaction() {
 //--------------------------------------------------------------------------------Display Trasaction---------------------------------------------------------//
 // Function to display recent transactions
 function displayRecentTransactions(querySnapshot) {
-    const recentTableBody = document.getElementById('recentTransactionsTable').createTBody();
+    const recentTableBody = document.getElementById('recentTransactionsTable').tBodies[0];
+
+    // Clear existing rows
+    recentTableBody.innerHTML = "";
 
     if (querySnapshot.empty) {
         // Display a message when there are no recent transactions
@@ -339,6 +355,9 @@ function displayRecentTransactions(querySnapshot) {
 function displayAllTransactions(querySnapshot) {
     const allTableBody = document.getElementById('allTransactionsTable').querySelector('tbody');
 
+    // Clear existing rows
+    allTableBody.innerHTML = "";
+
     if (querySnapshot.empty) {
         const noTransactionsRow = allTableBody.insertRow();
         const noTransactionsCell = noTransactionsRow.insertCell(0);
@@ -377,22 +396,23 @@ function displayAllTransactions(querySnapshot) {
             remarksCell.textContent = transactionData.remarks;
             addedDateCell.textContent = formatTimestamp(transactionData.timestamp);
 
-            // Add "Edit" button
+            // Add "Edit" button with icon
             const editButton = document.createElement('button');
-            editButton.textContent = 'Edit';
             editButton.id = `editButton_${doc.id}`;
+            editButton.innerHTML = '<i class="uil uil-edit"></i>';
             editButton.addEventListener('click', () => handleEditTransaction(doc.id));
             editCell.appendChild(editButton);
 
-            // Add "Delete" button
+            // Add "Delete" button with icon
             const deleteButton = document.createElement('button');
-            deleteButton.textContent = 'Delete';
             deleteButton.id = `deleteButton_${doc.id}`;
+            deleteButton.innerHTML = '<i class="uil uil-trash"></i>';
             deleteButton.addEventListener('click', () => handleDeleteTransaction(doc.id));
             deleteCell.appendChild(deleteButton);
         });
     }
 }
+
 
 // Function to calculate and display totals
 function calculateAndDisplayTotals(querySnapshot) {
@@ -588,7 +608,7 @@ function toggleSearchBox() {
         }
     });
 
-    searchBox.style.display = shouldDisplaySearchBox ? 'block' : 'none';
+    searchBox.style.visibility= shouldDisplaySearchBox ? 'visible' : 'hidden';
 }
 
 // Initial check on page load
