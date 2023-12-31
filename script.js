@@ -42,9 +42,9 @@ function getGreeting() {
 
   if (currentHour >= 5 && currentHour < 12) {
     return 'Good Morning!';
-  } else if (currentHour >= 12 && currentHour < 18) {
+  } else if (currentHour >= 12 && currentHour < 16) {
     return 'Good Afternoon!';
-  } else if (currentHour >= 18 && currentHour < 24) {
+  } else if (currentHour >= 16 && currentHour < 20) {
     return 'Good Evening!';
   } else {
     return 'Good Night!';
@@ -319,7 +319,7 @@ function displayRecentTransactions(querySnapshot) {
         // Display a message when there are no recent transactions
         const noTransactionsRow = recentTableBody.insertRow();
         const noTransactionsCell = noTransactionsRow.insertCell(0);
-        noTransactionsCell.colSpan = 6; // Set the colspan to match the number of columns in your table
+        noTransactionsCell.colSpan = 6;
         noTransactionsCell.textContent = 'No transactions to display';
     } else {
         querySnapshot.forEach((doc) => {
@@ -350,7 +350,6 @@ function displayRecentTransactions(querySnapshot) {
     }
 }
 
-
 // Function to display all transactions
 function displayAllTransactions(querySnapshot) {
     const allTableBody = document.getElementById('allTransactionsTable').querySelector('tbody');
@@ -368,6 +367,8 @@ function displayAllTransactions(querySnapshot) {
             const transactionData = doc.data();
             const transactionId = doc.id;
             const row = allTableBody.insertRow();
+            row.setAttribute('data-transaction-id', transactionId); // Add this line to set transaction ID to the row
+
             const selectCell = row.insertCell(0);
             const statusCell = row.insertCell(1);
             const dateCell = row.insertCell(2);
@@ -443,38 +444,145 @@ function displayTransactions() {
     const userId = firebase.auth().currentUser.uid;
     const transactionsRef = db.collection("users").doc(userId).collection("transactions");
 
-    // Fetch recent transactions
+    // Fetch recent and all transactions
     transactionsRef.orderBy("timestamp", "desc").limit(10).get()
-        .then((querySnapshot) => {
-            displayRecentTransactions(querySnapshot);
+        .then((recentQuerySnapshot) => {
+            const allTransactionsQuery = transactionsRef.orderBy("timestamp", "desc").get();
+
+            Promise.all([recentQuerySnapshot, allTransactionsQuery])
+                .then(([recentQuerySnapshot, allQuerySnapshot]) => {
+                    displayRecentTransactions(recentQuerySnapshot);
+                    displayAllTransactions(allQuerySnapshot);
+                    calculateAndDisplayTotals(allQuerySnapshot);
+                })
+                .catch((error) => {
+                    console.error("Error fetching transactions from Firestore:", error);
+                });
         })
         .catch((error) => {
             console.error("Error fetching recent transactions from Firestore:", error);
-        });
-
-    // Fetch all transactions
-    transactionsRef.orderBy("timestamp", "desc").get()
-        .then((querySnapshot) => {
-            displayAllTransactions(querySnapshot);
-        })
-        .catch((error) => {
-            console.error("Error fetching all transactions from Firestore:", error);
-        });
-
-    // Fetch all transactions to calculate totals
-    transactionsRef.get()
-        .then((querySnapshot) => {
-            calculateAndDisplayTotals(querySnapshot);
-        })
-        .catch((error) => {
-            console.error("Error fetching all transactions from Firestore:", error);
         });
 }
 
 
 
 
+
 //--------------------------------------------------------------------------------Update Trasaction---------------------------------------------------------//
+function handleEditTransaction(transactionId) {
+    const userId = firebase.auth().currentUser.uid;
+    const transactionRef = db.collection("users").doc(userId).collection("transactions").doc(transactionId);
+
+    // Fetch the transaction details
+    transactionRef.get()
+        .then((doc) => {
+            if (doc.exists) {
+                const transactionData = doc.data();
+                replaceTableCellsWithInputs(transactionId, transactionData);
+
+            } else {
+                console.log("Transaction not found");
+            }
+        })
+        .catch((error) => {
+            console.error("Error fetching transaction details:", error);
+        });
+}
+
+
+function replaceTableCellsWithInputs(transactionId, transactionData) {
+    const tableRow = document.querySelector(`[data-transaction-id="${transactionId}"]`);
+    
+    if (!tableRow) {
+        console.error(`Table row not found for transactionId ${transactionId}`);
+        return;
+    }
+
+    const fieldNames = ['date', 'title', 'amount', 'remarks'];
+
+    for (let i = 2; i <= 5; i++) {
+        const cell = tableRow.cells[i];
+        if (i === 0 && cell.firstChild && cell.firstChild.type === 'checkbox') continue;
+
+        const fieldName = fieldNames[i - 2];
+        const inputType = i === 2 ? 'text' : 'text';
+        const inputValue = transactionData[fieldName];
+
+        cell.setAttribute('data-field-name', fieldName);
+        cell.innerHTML = `<input type="${inputType}" id="edit${capitalizeFirstLetter(fieldName)}_${transactionId}" value="${inputValue}">`;
+    }
+        const saveButton = document.createElement('button');
+        saveButton.id = `editButton_${transactionId}`;
+        saveButton.innerHTML = '<i class="uil uil-save"></i>';
+        saveButton.addEventListener('click', () => saveEditedTransaction(transactionId));
+
+        const cancelButton = document.createElement('button');
+        cancelButton.id = `deleteButton_${transactionId}`;
+        cancelButton.innerHTML = '<i class="uil uil-times-circle"></i>';
+        cancelButton.addEventListener('click', () => cancelEditTransaction(transactionId));
+
+        tableRow.cells[tableRow.cells.length - 2].innerHTML = '';
+        tableRow.cells[tableRow.cells.length - 2].appendChild(saveButton);
+
+        tableRow.cells[tableRow.cells.length - 1].innerHTML = ''; 
+        tableRow.cells[tableRow.cells.length - 1].appendChild(cancelButton);
+}
+
+function capitalizeFirstLetter(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
+
+function saveEditedTransaction(transactionId) {
+    showLoadingOverlay();
+    const userId = firebase.auth().currentUser.uid;
+    const transactionsRef = firestore.collection('users').doc(userId).collection('transactions');
+
+    const tableRow = document.querySelector(`[data-transaction-id="${transactionId}"]`);
+    if (!tableRow) {
+        console.error(`Table row not found for transactionId ${transactionId}`);
+        return;
+    }
+
+    // Get the transaction ID directly from the row's data attribute
+    const transactionIdToUpdate = tableRow.getAttribute('data-transaction-id');
+
+    const updatedValues = {};
+
+   // Iterate over the input fields within the table row
+    tableRow.querySelectorAll('[data-field-name]').forEach((input) => {
+        const fieldName = input.getAttribute('data-field-name');
+        const value = document.getElementById(`edit${capitalizeFirstLetter(fieldName)}_${transactionId}`).value;
+        console.log(`${fieldName}: ${value}`);
+        updatedValues[fieldName] = value;
+    });
+
+        const updatedData = {
+        title: updatedValues['title'],
+        date: updatedValues['date'],
+        amount: parseFloat(updatedValues['amount']),
+        remarks: updatedValues['remarks'],
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    };
+
+    // Update the transaction in Firestore
+    transactionsRef.doc(transactionIdToUpdate).update(updatedData)
+        .then(() => {
+            displayTransactions();
+            hideLoadingOverlay();
+            showPopup("Transaction updated successfully",true);
+        })
+        .catch((error) => {
+            showPopup("Error updating transaction in Firestore",false);
+            console.error("Error updating transaction in Firestore:", error);
+        });
+}
+ 
+
+
+
+
+
 const firestore = firebase.firestore();
 // Function to delete a transaction from Firestore
 function handleDeleteTransaction(transactionId) {
@@ -514,17 +622,20 @@ let isAllSelected = false;
 
 
 function toggleSelectAll() {
-    const checkboxes = document.querySelectorAll('#allTransactionsTable tbody input[type="checkbox"]');
-    
-    checkboxes.forEach(checkbox => {
-        checkbox.checked = !isAllSelected;
+    const visibleRows = document.querySelectorAll('#allTransactionsTable tbody tr[style="display: table-row;"]');
+
+    visibleRows.forEach(row => {
+        const checkbox = row.querySelector('input[type="checkbox"]:not(:disabled)');
+        if (checkbox) {
+            checkbox.checked = !isAllSelected;
+        }
     });
 
     // Toggle the state
     isAllSelected = !isAllSelected;
     deleteSelectedBtn.disabled = !isAllSelected;
-
 }
+
 
 // Function to delete selected transactions
 function deleteSelected() {
