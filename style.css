@@ -196,9 +196,7 @@ body.dark .nav-links li a.active .link-name {
     padding-top: 10px;
     border-top: 1px solid var(--border-color);
 }
-.menu-items .logout-mode .uil.uil-user-circle, #userNameLink {
-    color:var(--green);
-}
+
 
 .menu-items .mode{
     display: flex;
@@ -311,7 +309,7 @@ nav.close ~ .dashboard .top{
     padding-top: 10px;
 }
 .dash-content .title.greetings{
-   margin-top: 50px;
+   margin-top: 45px;
 }
 .dash-content .title.greetings .text{
    font-size: 20px;
@@ -532,6 +530,9 @@ body.dark .table-common thead tr {
     }
 }
 @media (max-width: 400px) {
+
+
+
     .activity-data .data-title{
         font-size: 13px;
     }
@@ -540,7 +541,8 @@ body.dark .table-common thead tr {
     }
 
     #alltransactiontbl button {
-     font-size: 13px;
+     font-size: 20px;
+
     }
 
     nav{
@@ -649,6 +651,12 @@ body.dark .table-common thead tr {
 
 
 
+.icon-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center; /* Align vertically center if needed */
+}
 
 
 #add-transaction form {
@@ -727,7 +735,6 @@ body.dark .table-common thead tr {
     position: relative;
     display: inline-block;
     width: 40px;
-    min-width: 40px;
     height: 20px;
     cursor: pointer;
     margin-right: 10px;
@@ -775,11 +782,6 @@ body.dark .table-common thead tr {
     transition: .4s;
 }
 
-
-
-
-
-
 /* Style the checkboxes */
 #allTransactionsTable input[type="checkbox"] {
   margin: 0;
@@ -797,10 +799,6 @@ body.dark .table-common thead tr {
   position: relative;
 }
 
-/* Style the checked state of the checkboxes */
-#allTransactionsTable input[type="checkbox"]:checked {
-  border-color: var(--red);
-}
 
 /* Style the checkmark inside the checkbox */
 #allTransactionsTable input[type="checkbox"]::before {
@@ -810,16 +808,37 @@ body.dark .table-common thead tr {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  color: var(--red); /* Checkmark color */
+  color: var(--black-light-color); /* Checkmark color */
   font-size: 14px; /* Adjust the font size */
   font-weight: bold;
   visibility: hidden;
 }
 
+
 /* Show the checkmark when the checkbox is checked */
 #allTransactionsTable input[type="checkbox"]:checked::before {
   visibility: visible;
 }
+#allTransactionsTable input[type="text"] {
+    width: 100%;
+    min-width: 100px; /* Set your desired minimum width */
+    padding: 4px;
+    margin: 4px 0;
+    box-sizing: border-box;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    color: var(--text-color);
+}
+body.dark #allTransactionsTable input{
+    background-color: var(--primary-color);
+}
+
+#allTransactionsTable input[type="text"]:focus {
+    outline: none;
+    border-color: var(--blue);
+    box-shadow: 0 0 5px var(--blue);
+}
+
 
 #alltransactiontbl {
     display: flex;
@@ -829,17 +848,18 @@ body.dark .table-common thead tr {
 
 #deleteSelectedBtn,
 #allTransactionsTable  button{
-    padding: 5px 8px;
+    padding: 1px 7px;
     border: none;
     color: var(--text-color);
     text-align: center;
     text-decoration: none;
     display: inline-block;
-    font-size: 16px;
+    font-size: 20px;
     cursor: pointer;
     border-radius: 5px;
     transition: background-color 0.3s;
 }
+
 
 
 #allTransactionsTable th:first-child,
