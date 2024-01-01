@@ -24,6 +24,8 @@ firebase.auth().onAuthStateChanged(function(user) {
     if (user) {
         const userName = user.displayName;
         displayTransactions();
+        displayCropInspections();
+
 
         document.getElementById('userNameLink').textContent = userName; 
         document.getElementById('userNameGreetings').textContent = userName; 
@@ -228,10 +230,7 @@ function showPopup(message, isSuccess) {
 
 
 
-function clearTrasactionFrom(){
-       document.getElementById("transaction-form").reset();
-        document.getElementById("addTransactionBtn").disabled = true;
-}
+
 
 //--------------------------------------------------------------------------------vaidate add Trasaction form---------------------------------------------------------//
 
@@ -261,6 +260,18 @@ transactionForm.addEventListener("submit", function (event) {
 event.preventDefault();
 addTransaction();
 });
+
+function clearForm(formId) {
+    document.getElementById(formId).reset();
+    const addButtonId =
+        formId === 'transaction-form' 
+            ? 'addTransactionBtn' 
+            : formId === 'prescription-form' 
+                ? 'addPrescription' 
+                : 'addInspection';
+    document.getElementById(addButtonId).disabled = true;
+}
+
 
 //--------------------------------------------------------------------------------add Trasaction---------------------------------------------------------//
 
@@ -295,7 +306,7 @@ function addTransaction() {
     .then(() => {
         console.log("Transaction added to Firestore");
         hideLoadingOverlay();
-        clearTrasactionFrom(); 
+        clearForm('transaction-form'); 
         showPopup('Transaction added successfully!', true);
         displayTransactions();
     })
@@ -578,11 +589,7 @@ function saveEditedTransaction(transactionId) {
         });
 }
  
-
-
-
-
-
+//--------------------------------------------------------------------------------------Delete transaction----------------------------------------------//
 const firestore = firebase.firestore();
 // Function to delete a transaction from Firestore
 function handleDeleteTransaction(transactionId) {
@@ -756,5 +763,232 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 });
+
+//--------------------------------------------------------------------------------------Add Prescriptons----------------------------------------------//
+const prescriptionForm = document.getElementById('prescriptionForm');
+const pesticideNameInput = document.getElementById('pesticideName');
+const gramPerMLInput = document.getElementById('gramPerML');
+const prescriptionDateInput = document.getElementById('prescriptionDate');
+const prescriptionDescriptionInput = document.getElementById('prescriptionDescription');
+const addPrescriptionButton = document.getElementById('addPrescription');
+
+// Add event listeners to form elements for input validation
+pesticideNameInput.addEventListener('input', validatePrescriptionForm);
+gramPerMLInput.addEventListener('input', validatePrescriptionForm);
+prescriptionDateInput.addEventListener('input', validatePrescriptionForm);
+prescriptionDescriptionInput.addEventListener('input', validatePrescriptionForm);
+
+// Function to validate the prescription form and enable/disable the button
+function validatePrescriptionForm() {
+    const isFormValid = prescriptionForm.checkValidity();
+    addPrescriptionButton.disabled = !isFormValid;
+}
+
+// Function to add a prescription
+prescriptionForm.addEventListener('submit', function (event) {
+    event.preventDefault();
+    addPrescription();
+});
+
+function addPrescription() {
+    showLoadingOverlay();
+    const pesticideName = pesticideNameInput.value;
+    const gramPerML = gramPerMLInput.value;
+    const prescriptionDate = prescriptionDateInput.value;
+    const description = prescriptionDescription.value; // Change this line to get the description
+
+    const userId = firebase.auth().currentUser?.uid; // Use optional chaining
+
+
+    // Reference to the "prescriptions" collection for the current user
+    const prescriptionsRef = db.collection("users").doc(userId).collection("prescriptions");
+
+    // Add prescription data to Firestore
+    prescriptionsRef.add({
+        pesticideName: pesticideName,
+        gramPerML: gramPerML,
+        prescriptionDate: prescriptionDate,
+        description: description, // Add the description to the prescription data
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    })
+    .then((docRef) => {
+        console.log("Prescription added to Firestore with ID:", docRef.id);
+        hideLoadingOverlay();
+        clearForm('prescriptionForm');
+        showPopup('Prescription added successfully!', true);
+        // Additional logic as needed
+    })
+    .catch((error) => {
+        hideLoadingOverlay();
+        showPopup('Error adding prescription. Please try again.', false);
+        console.error("Error adding prescription to Firestore:", error);
+    });
+}
+
+//--------------------------------------------------------------------------------------Crop Inspection----------------------------------------------//
+const inspectionForm = document.getElementById('cropInspectionForm');
+const inspectionDateInput = document.getElementById('inspectionDate');
+const doctorNameInput = document.getElementById('doctorName'); // New line
+const inspectionFileInput = document.getElementById('inspectionFile');
+const addInspectionButton = document.getElementById('addInspection');
+
+inspectionDateInput.addEventListener('input', validateInspectionForm);
+doctorNameInput.addEventListener('input', validateInspectionForm); // New line
+inspectionFileInput.addEventListener('change', validateInspectionForm);
+
+function validateInspectionForm() {
+    const isFormValid = inspectionForm.checkValidity();
+    addInspectionButton.disabled = !isFormValid;
+}
+
+inspectionForm.addEventListener('submit', function (event) {
+    event.preventDefault();
+    addInspection();
+});
+
+function addInspection() {
+    showLoadingOverlay();
+    const inspectionDate = inspectionDateInput.value;
+    const doctorName = doctorNameInput.value; // New line
+    const inspectionFile = inspectionFileInput.files[0];
+    const userId = firebase.auth().currentUser?.uid;
+
+    // Reference to the "inspections" collection for the current user
+    const inspectionsRef = db.collection("users").doc(userId).collection("inspections");
+
+    // Create a storage reference for the file
+    const storageRef = firebase.storage().ref().child(`inspections/${userId}/${inspectionDate}_${inspectionFile.name}`);
+
+    // Upload the file to storage
+    storageRef.put(inspectionFile)
+        .then((snapshot) => {
+            // Get the download URL for the file
+            return snapshot.ref.getDownloadURL();
+        })
+        .then((downloadURL) => {
+            // Add inspection data to Firestore with the file URL
+            return inspectionsRef.add({
+                doctorName: doctorName, // New line
+                inspectionDate: inspectionDate,
+                inspectionFileURL: downloadURL,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            });
+        })
+        .then((docRef) => {
+            console.log("Inspection added to Firestore with ID:", docRef.id);
+            displayCropInspections();
+            hideLoadingOverlay();
+            clearForm('cropInspectionForm');
+            showPopup('Inspection added successfully!', true);
+
+            // Additional logic as needed
+        })
+        .catch((error) => {
+            hideLoadingOverlay();
+            showPopup('Error adding inspection. Please try again.', false);
+            console.error("Error adding inspection to Firestore:", error);
+        });
+}
+
+//--------------------------------------------------------------------------------------Display Crop Inspection----------------------------------------------//
+// Function to display recent crop inspections
+function displayRecentCropInspections(querySnapshot) {
+    const recentCropInspectionsTableBody = document.getElementById('recentCropInspectionsTable').querySelector('tbody');
+
+    // Clear existing rows
+    recentCropInspectionsTableBody.innerHTML = "";
+
+    if (querySnapshot.empty) {
+        const noInspectionsRow = recentCropInspectionsTableBody.insertRow();
+        const noInspectionsCell = noInspectionsRow.insertCell(0);
+        noInspectionsCell.colSpan = 3;
+        noInspectionsCell.textContent = 'No crop inspections to display';
+        noInspectionsCell.style.textAlign = 'center';
+    } else {
+        querySnapshot.forEach((doc) => {
+            const inspectionData = doc.data();
+            const inspectionId = doc.id;
+            const row = recentCropInspectionsTableBody.insertRow();
+            row.setAttribute('data-inspection-id', inspectionId); // Add this line to set inspection ID to the row
+
+            const dateCell = row.insertCell(0);
+            const doctorNameCell = row.insertCell(1);
+            const fileCell = row.insertCell(2);
+
+            // Set values to the cells
+            dateCell.textContent = formatDate(inspectionData.inspectionDate);
+            doctorNameCell.textContent = inspectionData.doctorName;
+
+            // Create a button element dynamically
+            const openModalBtn = document.createElement('a');
+            openModalBtn.className = "button-link";
+            openModalBtn.innerHTML = '<i class="uil-file-alt"></i>';
+
+            // Attach an event listener to the button
+            openModalBtn.addEventListener('click', function() {
+                openCustomModal(inspectionData.inspectionFileURL);
+            });
+
+            // Append the button to the fileCell
+            fileCell.appendChild(openModalBtn);
+        });
+    }
+}
+
+// Function to open the custom modal
+function openCustomModal(imageUrl) {
+    const modal = document.getElementById('customModal');
+    const modalImage = document.getElementById('modalImage');
+
+    modalImage.src = imageUrl;
+    modal.style.display = 'flex';
+
+    // Attach an event listener to the close button
+    document.getElementById('closeModalBtn').addEventListener('click', closeCustomModal);
+}
+
+// Function to close the custom modal
+function closeCustomModal() {
+    const modal = document.getElementById('customModal');
+    modal.style.display = 'none';
+}
+
+
+// Function to calculate and display totals for crop inspections
+function calculateAndDisplayCropInspectionTotals(querySnapshot) {
+    let totalCropInspections = 0;
+
+    querySnapshot.forEach((doc) => {
+        totalCropInspections++;
+    });
+
+    document.getElementById('totalCropInspections').textContent = totalCropInspections;
+    animateCounter('totalCropInspections', 0, totalCropInspections, 100);
+}
+
+// Function to display crop inspections
+function displayCropInspections() {
+    const userId = firebase.auth().currentUser.uid;
+    const inspectionsRef = db.collection("users").doc(userId).collection("inspections");
+
+    // Fetch recent and all crop inspections
+    inspectionsRef.orderBy("timestamp", "desc").limit(3).get()
+        .then((recentQuerySnapshot) => {
+            const allCropInspectionsQuery = inspectionsRef.orderBy("timestamp", "desc").get();
+
+            Promise.all([recentQuerySnapshot, allCropInspectionsQuery])
+                .then(([recentQuerySnapshot, allQuerySnapshot]) => {
+                    displayRecentCropInspections(recentQuerySnapshot);
+                    calculateAndDisplayCropInspectionTotals(allQuerySnapshot);
+                })
+                .catch((error) => {
+                    console.error("Error fetching crop inspections from Firestore:", error);
+                });
+        })
+        .catch((error) => {
+            console.error("Error fetching recent crop inspections from Firestore:", error);
+        });
+}
+
 
 });
