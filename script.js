@@ -824,6 +824,10 @@ function addPrescription() {
         console.error("Error adding prescription to Firestore:", error);
     });
 }
+document.getElementById('refreshButton').addEventListener('click', function() {
+    location.reload(); // This will reload the page
+});
+
 
 //--------------------------------------------------------------------------------------Crop Inspection----------------------------------------------//
 const inspectionForm = document.getElementById('cropInspectionForm');
