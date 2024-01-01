@@ -540,10 +540,6 @@ body.dark .table-common thead tr {
         font-size: 12px;
     }
 
-    #alltransactiontbl button {
-     font-size: 20px;
-
-    }
 
     nav{
         width: 0px;
@@ -784,7 +780,7 @@ body.dark .table-common thead tr {
 }
 
 /* Style the checkboxes */
-#allTransactionsTable input[type="checkbox"] {
+.table-common input[type="checkbox"] {
   margin: 0;
   padding: 0;
   appearance: none;
@@ -848,17 +844,16 @@ body.dark #allTransactionsTable input{
 }
 
 #deleteSelectedBtn,
-#allTransactionsTable  button{
-    padding: 1px 7px;
+.table-common  button{
+    display: inline-block;
+    padding: 5px 8px;
+    text-decoration: none;
     border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
     color: var(--text-color);
     text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 20px;
-    cursor: pointer;
-    border-radius: 5px;
-    transition: background-color 0.3s;
 }
 
 
@@ -871,22 +866,22 @@ body.dark #allTransactionsTable input{
 }
 
 
-#allTransactionsTable button[id^="editButton_"] {
+.table-common button[id^="editButton_"] {
     background-color: var(--blue); /* Blue color */
     color: #fff; /* White text color */
 }
 
-#allTransactionsTable button[id^="editButton_"]:hover {
+.table-common button[id^="editButton_"]:hover {
     background-color: var(--blue-hover); /* Darker blue color on hover */
 }
 
 #deleteSelectedBtn,
-#allTransactionsTable button[id^="deleteButton_"] {
+.table-common button[id^="deleteButton_"] {
     background-color: var(--red); /* Red color */
     color: #fff; /* White text color */
 }
 
-#allTransactionsTable button[id^="deleteButton_"]:hover {
+.table-common button[id^="deleteButton_"]:hover {
     background-color: var(--red-hover); /* Darker red color on hover */
 }
 
@@ -1200,6 +1195,7 @@ body.dark #allTransactionsTable input{
   transform: rotate(330deg);
 }
 
+
 @keyframes spinner-fade9234 {
   0% {
     background-color: #69717d;
@@ -1208,8 +1204,23 @@ body.dark #allTransactionsTable input{
   100% {
     background-color: transparent;
   }
+}
 
 
 
 
+.animate-countdown {
+    animation: fadeInOut 0.5s ease-in-out;
+}
 
+@keyframes fadeInOut {
+    0% {
+        opacity: 0;
+    }
+    50% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
+}
