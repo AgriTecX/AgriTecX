@@ -136,17 +136,17 @@
                     <div class="box box1">
                         <i class="uil uil-tablets" style="color:#ffab00"></i>
                         <span class="text">Total Pesticides</span>
-                        <span class="number"style="color:#ffab00">0</span>
+                        <span class="number"id="totalPrescriptions" style="color:#ffab00">0</span>
                     </div>
                     <div class="box box2">
                         <i class="uil uil-calendar-alt" style="color:#45B8AC" ></i>
                         <span class="text">Total Inspections</span>
                         <span class="number" id="totalCropInspections" style="color:#45B8AC">0</span>
                     </div>
-                    <div class="box box3">
+                    <div class="box box3" id="membershipCard">
                         <i class="uil uil-exclamation-triangle" style="color:#B565A7" ></i>
-                        <span class="text">Coming Soon</span>
-                        <span class="number" style="color:#B565A7">-</span>
+                        <span class="text">Membership Valid Till</span>
+                        <span class="number" id="membership"style="color:#B565A7">-</span>
                     </div>
                 </div>
             </div>
@@ -344,6 +344,55 @@
 <!----------------------------------------------------------------------view content---------------------->
 
     <div class="dash-content" id="view-pesticides" style="display: none;">
+        <div class="activity">
+                <div class="title greetings" id="tableTitle">
+                    <i id="tableIcon" class="uil"></i>
+                    <span class="text" id="tableText"></span>
+                </div>
+
+         <div class="table-actions" id="alltransactiontbl">
+            <label class="toggle-switch">
+            <input type="checkbox" id="togglePrescriptionInspection">
+            <span class="slider"></span>
+        </label>
+        </div>
+
+        <div class="activity-data">
+            <table id="prescriptionTable" class="table-common">
+                <thead>
+                    <tr>
+                        <th>SL.NO</th>
+                        <th>Pesticide</th>
+                        <th>Gram/ML</th>
+                        <th>Date</th>
+                        <th>Description</th>
+                        <th>Delete</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Rows will be dynamically added here using JavaScript -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Inspection Table -->
+        <div class="activity-data">
+            <table id="inspectionTable" class="table-common" style="display:none;">
+                <thead>
+                    <tr>
+                        <th>SL.NO</th>
+                        <th>Inspection Date</th>
+                        <th>Doctor Name</th>
+                        <th>File</th>
+                        <th>Delete</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Rows will be dynamically added here using JavaScript -->
+                </tbody>
+            </table>
+        </div>
+    </div>
     </div>
 <!----------------------------------------------------------------------view content---------------------->
 
