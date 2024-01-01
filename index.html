@@ -18,7 +18,12 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.3/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.3/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.3/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.3/firebase-storage-compat.js"></script>
     <script src="firebase-config.js"></script>
+
+
+
+
 
     <title>AgriTecX</title>
 </head>
@@ -47,8 +52,8 @@
                         <span class="link-name">View Transactions</span>
                     </a></li>
                     <hr>
-                    <li><a href="#add-pesticides" class="menu-link">
-                        <i class="uil uil-capsule"></i>
+                    <li><a href="#add-prescription" class="menu-link">
+                        <i class="uil uil-book-medical"></i>
                         <span class="link-name">Add Pesticides</span>
                     </a></li>
                     <li><a href="#view-pesticides" class="menu-link">
@@ -120,28 +125,50 @@
                         <span class="number" id="totalCredit" style="color:#6DD64D">0</span>
                     </div>
                     <div class="box box3">
-                        <i class="uil uil-bolt-alt" style="color:#fa6e02"></i>
+                        <i class="uil uil-bolt-alt" style="color:#e06000"></i>
                         <span class="text">Total Trasactions</span>
-                        <span class="number" id="totalTransactions"style="color:#fa6e02">0</span>
+                        <span class="number" id="totalTransactions"style="color:#e06000">0</span>
                     </div>
 
                 </div>
                 <div class="boxes">
                     <div class="box box1">
-                        <i class="uil uil-tablets" style="color:#f2d040"></i>
+                        <i class="uil uil-tablets" style="color:#ffab00"></i>
                         <span class="text">Total Pesticides</span>
-                        <span class="number"style="color:#f2d040">0</span>
+                        <span class="number"style="color:#ffab00">0</span>
                     </div>
                     <div class="box box2">
-                        <i class="uil uil-exclamation-triangle"></i>
-                        <span class="text">Coming Soon</span>
-                        <span class="number">-</span>
+                        <i class="uil uil-calendar-alt" style="color:#45B8AC" ></i>
+                        <span class="text">Total Inspections</span>
+                        <span class="number" id="totalCropInspections" style="color:#45B8AC">0</span>
                     </div>
                     <div class="box box3">
-                        <i class="uil uil-exclamation-triangle"></i>
+                        <i class="uil uil-exclamation-triangle" style="color:#B565A7" ></i>
                         <span class="text">Coming Soon</span>
-                        <span class="number">-</span>
+                        <span class="number" style="color:#B565A7">-</span>
                     </div>
+                </div>
+            </div>
+
+            <div class="activity">
+                <div class="title">
+                    <i class="uil uil-calendar-alt"></i>
+                    <span class="text">Recent Inspections</span>
+                </div> 
+
+                <div class="activity-data">
+                    <table id="recentCropInspectionsTable" class="table-common full-width-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Doctor Name</th>
+                                <th>File</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Rows for recent inspections will be dynamically added here using JavaScript -->
+                        </tbody>
+                    </table>
                 </div>
             </div>
 
@@ -214,7 +241,7 @@
 
         <button type="submit" id="addTransactionBtn" disabled>Add Transaction</button>
     </form>
-</div>
+    </div>
 </div>
 
 
@@ -260,12 +287,64 @@
     </div>
 
 <!----------------------------------------------------------------------view content---------------------->
-
-    <div class="dash-content" id="add-pesticides" style="display: none;">
+<div class="dash-content" id="add-prescription">
+    <div class="overview">
+        <div class="title greetings">
+            <i class="uil uil-book-medical"></i>
+            <span class="text">Add Prescription</span>
+        </div>
     </div>
+    <form id="prescriptionForm">
+        <div class="prescription-details">
+            <label for="pesticideName">Pesticide Name:</label>
+            <input type="text" id="pesticideName" name="pesticideName" required>
+
+            <label for="gramPerML">Gram/ML:</label>
+            <input type="text" id="gramPerML" name="gramPerML" required>
+
+            <label for="prescriptionDate">Date:</label>
+            <input type="date" id="prescriptionDate" name="prescriptionDate" required>
+
+            <label for="description">Description:</label>
+            <textarea id="prescriptionDescription" name="description" rows="4" required></textarea>
+
+            <button type="submit" id="addPrescription" disabled>Submit Prescription</button>
+        </div>
+    </form>
+
+    <div class="overview">
+        <div class="title greetings">
+            <i class="uil uil-calendar-alt"></i>
+            <span class="text">Crop Inspection</span>
+        </div>
+    </div>
+
+    <form id="cropInspectionForm">
+    <div class="inspection-details">
+        <label for="inspectionDate">Inspection Date:</label>
+        <input type="date" id="inspectionDate" name="inspectionDate" required>
+
+        <label for="doctorName">Doctor Name:</label>
+        <input type="text" id="doctorName" name="doctorName" required>
+
+        <label for="inspectionFile">Inspection File:</label>
+        <input type="file" id="inspectionFile" name="inspectionFile" accept="image/*" required>
+
+        <button type="submit" id="addInspection" disabled>Submit Inspection</button>
+    </div>
+</form>
+
+</div>
+
+
+
+
+
+<!----------------------------------------------------------------------view content---------------------->
 
     <div class="dash-content" id="view-pesticides" style="display: none;">
     </div>
+<!----------------------------------------------------------------------view content---------------------->
 
     </section>
 
@@ -284,7 +363,20 @@
              <div class="spinner-blade"></div>
              <div class="spinner-blade"></div>
          </div>
-      </div>
+    </div>
+
+<!-- Add this modal structure at the end of your HTML body -->
+<div class="custom-modal" id="customModal">
+    <div class="modal-content">
+        <div class="close-modal" id="closeModalBtn">
+            <p id="imageCaption"></p> <!-- Add this element for the image name -->
+            <i class="uil uil-times"></i>
+        </div>
+        <img id="modalImage" src="">
+    </div>
+</div>
+
+
 
 
 </body>
