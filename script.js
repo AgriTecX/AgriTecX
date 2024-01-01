@@ -25,6 +25,8 @@ firebase.auth().onAuthStateChanged(function(user) {
         const userName = user.displayName;
         displayTransactions();
         displayCropInspections();
+        displayPrescriptions();
+        displayMembershipValidity();
 
 
         document.getElementById('userNameLink').textContent = userName; 
@@ -707,7 +709,7 @@ function animateCounter(targetId, startValue, endValue, duration) {
 
             updateCounter();
         }
-
+//--------------------------------------------------------------------------------search animation---------------------------------------------------------//
 
 function toggleSearchBox() {
     const activeLinks = document.querySelectorAll('.menu-link');
@@ -722,23 +724,24 @@ function toggleSearchBox() {
             searchInput.value = ''; // Clear the value of the searchInput
 
             // Trigger the filtering logic immediately after clearing the input
-            filterTableRows(searchInput.value.toLowerCase());
+            const tableId = getTableIdByHash(href);
+            filterTableRows(tableId, searchInput.value.toLowerCase());
         }
     });
 
     searchBox.style.visibility = shouldDisplaySearchBox ? 'visible' : 'hidden';
 }
 
-
 toggleSearchBox();
 
 // JavaScript code to filter table rows based on search input
 document.getElementById('searchInput').addEventListener('input', function () {
-    filterTableRows(this.value.toLowerCase());
+    const activeTableId = getActiveTableId();
+    filterTableRows(activeTableId, this.value.toLowerCase());
 });
 
-function filterTableRows(query) {
-    const rows = document.querySelectorAll('#allTransactionsTable tbody tr');
+function filterTableRows(tableId, query) {
+    const rows = document.querySelectorAll(`#${tableId} tbody tr`);
 
     rows.forEach(row => {
         const visible = Array.from(row.cells).some(cell => cell.textContent.toLowerCase().includes(query));
@@ -746,6 +749,23 @@ function filterTableRows(query) {
     });
 }
 
+function getActiveTableId() {
+    const activeLinks = document.querySelectorAll('.menu-link.active');
+    const currentHash = activeLinks.length > 0 ? activeLinks[0].getAttribute('href') : '';
+    return getTableIdByHash(currentHash);
+}
+
+function getTableIdByHash(hash) {
+    switch (hash) {
+        case '#view-transactions':
+            return 'allTransactionsTable';
+        case '#view-pesticides':
+            return 'prescriptionTable'; // Change this to the appropriate ID for pesticides table
+        // Add more cases if you have other tables
+        default:
+            return ''; // Return the default table ID
+    }
+}
 
 document.addEventListener('DOMContentLoaded', function () {
     // Get the current URL
@@ -763,6 +783,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 });
+
 
 //--------------------------------------------------------------------------------------Add Prescriptons----------------------------------------------//
 const prescriptionForm = document.getElementById('prescriptionForm');
@@ -813,6 +834,7 @@ function addPrescription() {
     })
     .then((docRef) => {
         console.log("Prescription added to Firestore with ID:", docRef.id);
+        displayPrescriptions();
         hideLoadingOverlay();
         clearForm('prescriptionForm');
         showPopup('Prescription added successfully!', true);
@@ -970,19 +992,80 @@ function calculateAndDisplayCropInspectionTotals(querySnapshot) {
     animateCounter('totalCropInspections', 0, totalCropInspections, 100);
 }
 
+function displayAllCropInspections(querySnapshot) {
+    const allCropInspectionsTableBody = document.getElementById('inspectionTable').querySelector('tbody');
+
+    // Clear existing rows
+    allCropInspectionsTableBody.innerHTML = "";
+
+    if (!querySnapshot || querySnapshot.size === 0) {
+        const noInspectionsRow = allCropInspectionsTableBody.insertRow();
+        const noInspectionsCell = noInspectionsRow.insertCell(0);
+        noInspectionsCell.colSpan = 5; // Adjust the colspan based on the number of columns
+        noInspectionsCell.textContent = 'No crop inspections to display';
+        noInspectionsCell.style.textAlign = 'center';
+    } else {
+        let serialNumber = querySnapshot.size; // Initialize the serial number counter with the total count
+
+        querySnapshot.forEach((doc) => {
+            const inspectionData = doc.data();
+            const inspectionId = doc.id;
+            const row = allCropInspectionsTableBody.insertRow();
+            row.setAttribute('data-inspection-id', inspectionId);
+
+            const slNoCell = row.insertCell(0);
+            const dateCell = row.insertCell(1);
+            const doctorNameCell = row.insertCell(2);
+            const fileCell = row.insertCell(3);
+            const deleteCell = row.insertCell(4);
+
+            // Set serial number to the cell
+            slNoCell.textContent = serialNumber--;
+
+            // Set values to the cells
+            dateCell.textContent = formatDate(inspectionData.inspectionDate);
+            doctorNameCell.textContent = inspectionData.doctorName;
+
+            // Create a button element dynamically for opening modal
+            const openModalBtn = document.createElement('a');
+            openModalBtn.className = "button-link";
+            openModalBtn.innerHTML = '<i class="uil-file-alt"></i>';
+
+            // Attach an event listener to the button
+            openModalBtn.addEventListener('click', function() {
+                openCustomModal(inspectionData.inspectionFileURL);
+            });
+
+            // Append the button to the fileCell
+            fileCell.appendChild(openModalBtn);
+
+            // Add "Delete" button with icon
+            const deleteButton = document.createElement('button');
+            deleteButton.id = `deleteButton_${inspectionId}`;
+            deleteButton.innerHTML = '<i class="uil uil-trash-alt"></i>';
+            deleteButton.addEventListener('click', () => handleDeleteInspection(inspectionId));
+            deleteCell.appendChild(deleteButton);
+        });
+    }
+}
+
+
+
+
 // Function to display crop inspections
 function displayCropInspections() {
     const userId = firebase.auth().currentUser.uid;
     const inspectionsRef = db.collection("users").doc(userId).collection("inspections");
 
     // Fetch recent and all crop inspections
-    inspectionsRef.orderBy("timestamp", "desc").limit(3).get()
+    inspectionsRef.orderBy("inspectionDate", "desc").limit(3).get()
         .then((recentQuerySnapshot) => {
-            const allCropInspectionsQuery = inspectionsRef.orderBy("timestamp", "desc").get();
+            const allCropInspectionsQuery = inspectionsRef.orderBy("inspectionDate", "desc").get();
 
             Promise.all([recentQuerySnapshot, allCropInspectionsQuery])
                 .then(([recentQuerySnapshot, allQuerySnapshot]) => {
                     displayRecentCropInspections(recentQuerySnapshot);
+                    displayAllCropInspections(allQuerySnapshot);
                     calculateAndDisplayCropInspectionTotals(allQuerySnapshot);
                 })
                 .catch((error) => {
@@ -993,6 +1076,249 @@ function displayCropInspections() {
             console.error("Error fetching recent crop inspections from Firestore:", error);
         });
 }
+
+
+
+
+
+
+function handleDeleteInspection(inspectionId) {
+    const userId = firebase.auth().currentUser.uid;
+    const inspectionsRef = db.collection("users").doc(userId).collection("inspections");
+
+    // Get the inspection data to retrieve the file URL
+    inspectionsRef.doc(inspectionId).get()
+        .then((doc) => {
+            const inspectionData = doc.data();
+            const fileURL = inspectionData.inspectionFileURL;
+
+            // Delete the inspection document from Firestore
+            return inspectionsRef.doc(inspectionId).delete()
+                .then(() => {
+                    console.log("Inspection document deleted successfully");
+
+                    // Delete the associated image from Storage
+                    const storageRef = firebase.storage().refFromURL(fileURL);
+                    return storageRef.delete()
+                        .then(() => {
+                            console.log("Inspection image deleted successfully");
+
+                            // Refresh the displayed inspections
+                            displayCropInspections();
+
+                            showPopup("Inspection deleted successfully", true);
+                        })
+                        .catch((error) => {
+                            console.error("Error deleting inspection image from Storage:", error);
+                            showPopup("Error deleting inspection image", false);
+                        });
+                })
+                .catch((error) => {
+                    console.error("Error deleting inspection document from Firestore:", error);
+                    showPopup("Error deleting inspection document", false);
+                });
+        })
+        .catch((error) => {
+            console.error("Error retrieving inspection data from Firestore:", error);
+            showPopup("Error retrieving inspection data", false);
+        });
+}
+
+
+function displayAllPrescriptions(querySnapshot) {
+    const allPrescriptionsTableBody = document.getElementById('prescriptionTable').querySelector('tbody');
+
+    // Clear existing rows
+    allPrescriptionsTableBody.innerHTML = "";
+
+    if (!querySnapshot || querySnapshot.size === 0) {
+        const noPrescriptionsRow = allPrescriptionsTableBody.insertRow();
+        const noPrescriptionsCell = noPrescriptionsRow.insertCell(0);
+        noPrescriptionsCell.colSpan = 6; // Adjust the colspan based on the number of columns
+        noPrescriptionsCell.textContent = 'No prescriptions to display';
+        noPrescriptionsCell.style.textAlign = 'center';
+    } else {
+        let serialNumber = querySnapshot.size; // Initialize the serial number counter with the total count
+
+        querySnapshot.forEach((doc) => {
+            const prescriptionData = doc.data();
+            const prescriptionId = doc.id;
+            const row = allPrescriptionsTableBody.insertRow();
+            row.setAttribute('data-prescription-id', prescriptionId);
+
+            const slNoCell = row.insertCell(0);
+            const pesticideNameCell = row.insertCell(1);
+            const gramMlCell = row.insertCell(2);
+            const dateCell = row.insertCell(3);
+            const descriptionCell = row.insertCell(4);
+            const deleteCell = row.insertCell(5);
+
+            // Set serial number to the cell
+            slNoCell.textContent = serialNumber--;
+
+            // Set values to the cells
+            pesticideNameCell.textContent = prescriptionData.pesticideName;
+            gramMlCell.textContent = prescriptionData.gramPerML;
+            dateCell.textContent = formatDate(prescriptionData.prescriptionDate);
+            descriptionCell.textContent = prescriptionData.description;
+
+            // Add "Delete" button with icon
+            const deleteButton = document.createElement('button');
+            deleteButton.id = `deleteButton_${prescriptionId}`;
+            deleteButton.innerHTML = '<i class="uil uil-trash-alt"></i>';
+            deleteButton.addEventListener('click', () => handleDeletePrescription(prescriptionId));
+            deleteCell.appendChild(deleteButton);
+        });
+    }
+}
+
+function calculateAndDisplayPrescriptionTotals(querySnapshot) {
+    let totalPrescriptions = 0;
+
+    querySnapshot.forEach((doc) => {
+        totalPrescriptions++;
+    });
+
+    document.getElementById('totalPrescriptions').textContent = totalPrescriptions;
+    animateCounter('totalPrescriptions', 0, totalPrescriptions, 100);
+}
+
+function displayPrescriptions() {
+    const userId = firebase.auth().currentUser.uid;
+    const prescriptionsRef = db.collection("users").doc(userId).collection("prescriptions");
+
+    prescriptionsRef.get()
+        .then((querySnapshot) => {
+            // Display prescriptions in the dedicated table
+            displayAllPrescriptions(querySnapshot);
+
+            // Calculate and display the total number of prescriptions
+            calculateAndDisplayPrescriptionTotals(querySnapshot);
+        })
+        .catch((error) => {
+            console.error("Error fetching prescriptions from Firestore:", error);
+        });
+}
+
+
+
+// Example function to handle prescription deletion
+function handleDeletePrescription(prescriptionId, row) {
+    const userId = firebase.auth().currentUser.uid;
+    const prescriptionsRef = db.collection("users").doc(userId).collection("prescriptions");
+
+    // Delete the prescription from Firestore
+    prescriptionsRef.doc(prescriptionId).delete()
+        .then(() => {
+            console.log("Prescription deleted successfully");
+            displayPrescriptions(); // Refresh the displayed prescriptions
+            showPopup("Prescription deleted successfully",true);
+        })
+        .catch((error) => {
+            console.error("Error deleting prescription from Firestore:", error);
+            showPopup("Error deleting prescription",false);
+
+        });
+}
+
+function displayMembershipValidity() {
+    const userId = firebase.auth().currentUser.uid;
+    const userRef = db.collection("users").doc(userId);
+    const membershipElement = document.getElementById('membership');
+
+    let showExactDate = true;
+
+    function updateValidity() {
+        userRef.get()
+            .then((doc) => {
+                if (doc.exists) {
+
+                    const membershipValidTill = doc.data().membershipValidTill;
+
+                    const membershipValidTilldays= new Date(doc.data().membershipValidTill);
+                    const today = new Date();
+                    const remainingDays = Math.ceil((membershipValidTilldays - today) / (1000 * 60 * 60 * 24));
+
+                    if (showExactDate) {
+                        // Display exact date
+                        membershipElement.textContent = membershipValidTill;
+                    } else {
+                        // Display remaining days
+                        membershipElement.textContent = `${remainingDays} days left`;
+                    }
+
+                    // Toggle the flag for the next iteration
+                    showExactDate = !showExactDate;
+
+                    // Add animation class
+                    membershipElement.classList.add('animate-countdown');
+
+                    // Remove animation class after a short delay
+                    setTimeout(() => {
+                        membershipElement.classList.remove('animate-countdown');
+                    }, 500);
+                } else {
+                    console.error("User document not found");
+                }
+            })
+            .catch((error) => {
+                console.error("Error fetching user data from Firestore:", error);
+            });
+    }
+
+    // Call the function initially
+    updateValidity();
+
+    // Update the content every 3 seconds
+    setInterval(updateValidity, 5000);
+}
+
+
+
+
+
+
+//--------------------------------------------------------------------------------------toggle tables----------------------------------------------//
+
+const toggleSwitch = document.getElementById('togglePrescriptionInspection');
+const prescriptionTable = document.getElementById('prescriptionTable');
+const inspectionTable = document.getElementById('inspectionTable');
+const tableTitle = document.getElementById('tableTitle');
+const tableIcon = document.getElementById('tableIcon');
+const tableText = document.getElementById('tableText');
+
+toggleSwitch.addEventListener('change', function () {
+    if (toggleSwitch.checked) {
+        // If toggle is on, show inspectionTable and update the title
+        prescriptionTable.style.display = 'none';
+        inspectionTable.style.display = 'table'; // or 'block' for visibility
+        updateTitle('uil-prescription-bottle', 'All Inspections');
+    } else {
+        // If toggle is off, show prescriptionTable and update the title
+        prescriptionTable.style.display = 'table'; // or 'block' for visibility
+        inspectionTable.style.display = 'none';
+        updateTitle('uil-prescription-bottle', 'All Prescriptions');
+    }
+});
+
+// Initial setup based on the default state of the toggle switch
+if (toggleSwitch.checked) {
+    prescriptionTable.style.display = 'none';
+    inspectionTable.style.display = 'table'; // or 'block' for visibility
+    updateTitle('uil-prescription-bottle', 'All Inspections');
+} else {
+    prescriptionTable.style.display = 'table'; // or 'block' for visibility
+    inspectionTable.style.display = 'none';
+    updateTitle('uil-prescription-bottle', 'All Prescriptions');
+}
+
+// Function to update the title dynamically
+function updateTitle(iconClass, titleText) {
+    tableIcon.className = `uil ${iconClass}`;
+    tableText.textContent = titleText;
+}
+
+
 
 
 });
