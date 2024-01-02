@@ -26,9 +26,10 @@ firebase.auth().onAuthStateChanged(function(user) {
         displayTransactions();
         displayCropInspections();
         displayPrescriptions();
-        displayMembershipValidity();
 
-
+        // Pass user to getUserData function
+        getUserData(user);
+        console.error(user);
         document.getElementById('userNameLink').textContent = userName; 
         document.getElementById('userNameGreetings').textContent = userName; 
         hideLoadingOverlay();
@@ -38,7 +39,6 @@ firebase.auth().onAuthStateChanged(function(user) {
         window.location.href = 'login.html';
     }
 });
-
 //--------------------------------------------------------------------------------Greeting Update---------------------------------------------------------//
 
 function getGreeting() {
@@ -95,6 +95,7 @@ sidebarToggle.addEventListener("click", () => {
 
 document.getElementById('signoutbtn').addEventListener('click', logout);
 
+document.getElementById('logoutBtn').addEventListener('click', logout);
 // Assuming you have initialized Firebase previously
 
 // Get a reference to the Firebase Authentication service
@@ -113,6 +114,7 @@ function logout() {
         console.error('Error during logout:', error);
     });
 }
+
 
 //--------------------------------------------------------------------------------Minu-link and load to dash-content---------------------------------------------------------//
 
@@ -1221,49 +1223,33 @@ function handleDeletePrescription(prescriptionId, row) {
         });
 }
 
-function displayMembershipValidity() {
-    const userId = firebase.auth().currentUser.uid;
-    const userRef = db.collection("users").doc(userId);
+function displayMembershipValidity(membershipValidTill) {
     const membershipElement = document.getElementById('membership');
-
     let showExactDate = true;
 
     function updateValidity() {
-        userRef.get()
-            .then((doc) => {
-                if (doc.exists) {
+        const membershipValidTillDate = new Date(membershipValidTill);
+        const today = new Date();
+        const remainingDays = Math.ceil((membershipValidTillDate - today) / (1000 * 60 * 60 * 24));
 
-                    const membershipValidTill = doc.data().membershipValidTill;
+        if (showExactDate) {
+            // Display exact date
+            membershipElement.textContent = membershipValidTill;
+        } else {
+            // Display remaining days
+            membershipElement.textContent = `${remainingDays} days left`;
+        }
 
-                    const membershipValidTilldays= new Date(doc.data().membershipValidTill);
-                    const today = new Date();
-                    const remainingDays = Math.ceil((membershipValidTilldays - today) / (1000 * 60 * 60 * 24));
+        // Toggle the flag for the next iteration
+        showExactDate = !showExactDate;
 
-                    if (showExactDate) {
-                        // Display exact date
-                        membershipElement.textContent = membershipValidTill;
-                    } else {
-                        // Display remaining days
-                        membershipElement.textContent = `${remainingDays} days left`;
-                    }
+        // Add animation class
+        membershipElement.classList.add('animate-countdown');
 
-                    // Toggle the flag for the next iteration
-                    showExactDate = !showExactDate;
-
-                    // Add animation class
-                    membershipElement.classList.add('animate-countdown');
-
-                    // Remove animation class after a short delay
-                    setTimeout(() => {
-                        membershipElement.classList.remove('animate-countdown');
-                    }, 500);
-                } else {
-                    console.error("User document not found");
-                }
-            })
-            .catch((error) => {
-                console.error("Error fetching user data from Firestore:", error);
-            });
+        // Remove animation class after a short delay
+        setTimeout(() => {
+            membershipElement.classList.remove('animate-countdown');
+        }, 500);
     }
 
     // Call the function initially
@@ -1272,6 +1258,107 @@ function displayMembershipValidity() {
     // Update the content every 3 seconds
     setInterval(updateValidity, 5000);
 }
+
+
+function getUserData(userData) {
+    const userId = firebase.auth().currentUser.uid;
+    const userRef = db.collection("users").doc(userId);
+    const isEmailVerified = userData.emailVerified;
+
+    const emailInput = document.getElementById('email');
+
+    if (userData.emailVerified) {
+                emailInput.style.border = '1px solid var(--green)'; // Set border color to red
+                
+        } else {
+                emailInput.style.border = '1px solid var(--red)'; // Set border color to red
+    }
+
+    userRef.get().then((doc) => {
+        if (doc.exists) {
+            const data = doc.data();
+            document.getElementById('name').value = data.name || '';
+            document.getElementById('email').value = data.email|| '';
+            document.getElementById('phone').value = data.phone || '';
+
+            const lastLoginDate = data.lastLogin ? formatDate(data.lastLogin, 'DD-MM-YY hh:mm A') : 'N/A';
+            const signupDate = data.signupDateTime ? formatDate(data.signupDateTime, 'DD-MM-YY hh:mm A') : 'N/A';
+
+            document.getElementById('membershipInput').value = formatDate(data.membershipValidTill, 'DD-MM-YY hh:mm A');
+            document.getElementById('lastLoginItem').innerHTML = `<strong>Last Login:</strong> ${lastLoginDate}`;
+
+            // Display device details
+            const deviceDetails = data.deviceDetails || {};
+            const browser = deviceDetails.browser || 'N/A';
+            const ip = deviceDetails.ip || 'N/A';
+            const os = deviceDetails.os || 'N/A';
+
+            document.getElementById('deviceDetailsItem').innerHTML = `<strong>IP:</strong> ${ip}<br><strong>OS:</strong> ${os}<br><strong>Browser:</strong> ${browser}`;
+
+
+            document.getElementById('joinedDateItem').innerHTML = `<strong>Joined Date:</strong> ${signupDate}`;
+            displayMembershipValidity(formatDate(data.membershipValidTill, 'DD-MM-YY'));
+        } else {
+            console.log('No such document!');
+        }
+    }).catch((error) => {
+        console.error('Error getting document:', error);
+    });
+}
+
+
+
+function formatDate(rawDate, format) {
+    const date = new Date(rawDate);
+
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0'); // Months are zero-based
+    const year = date.getFullYear().toString().slice(-2);
+    let hours = date.getHours().toString().padStart(2, '0');
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    const amPM = hours < 12 ? 'AM' : 'PM';
+
+    if (hours > 12) {
+        hours = (hours - 12).toString().padStart(2, '0');
+    } else if (hours === '00') {
+        hours = '12';
+    }
+
+    switch (format) {
+        case 'DD-MM-YY':
+            return `${day}-${month}-${year}`;
+        case 'DD-MM-YY hh:mm A':
+            return `${day}-${month}-${year} ${hours}:${minutes} ${amPM}`;
+        default:
+            return 'Invalid Format';
+    }
+}
+
+
+
+
+
+
+document.getElementById('whatsappButton').addEventListener('click', openWhatsApp);
+
+
+function openWhatsApp() {
+    const user = auth.currentUser;
+
+    if (user) {
+        const phoneNumber = '+919902462472';  // Replace with your desired phone number
+        console.error(user.displayName);
+
+        // Construct the WhatsApp message
+        const message = encodeURIComponent(`Hi, I need to upgrade my AgritecX membership. Name: ${user.displayName || 'N/A'}, Email: ${user.email || 'N/A'}, UID: ${user.uid}`);
+        const whatsappUrl = `whatsapp://send?phone=${phoneNumber}&text=${message}`;
+
+        // Open WhatsApp
+        window.location.href = whatsappUrl;
+    }
+}
+
+
 
 
 
