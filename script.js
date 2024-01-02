@@ -29,7 +29,7 @@ firebase.auth().onAuthStateChanged(function(user) {
 
         // Pass user to getUserData function
         getUserData(user);
-        console.error(user);
+
         document.getElementById('userNameLink').textContent = userName; 
         document.getElementById('userNameGreetings').textContent = userName; 
         hideLoadingOverlay();
@@ -534,7 +534,7 @@ function replaceTableCellsWithInputs(transactionId, transactionData) {
         const cancelButton = document.createElement('button');
         cancelButton.id = `deleteButton_${transactionId}`;
         cancelButton.innerHTML = '<i class="uil uil-times-circle"></i>';
-        cancelButton.addEventListener('click', () => cancelEditTransaction(transactionId));
+        cancelButton.addEventListener('click', () => cancelEditTransaction(transactionId,transactionData));
 
         tableRow.cells[tableRow.cells.length - 2].innerHTML = '';
         tableRow.cells[tableRow.cells.length - 2].appendChild(saveButton);
@@ -546,6 +546,61 @@ function replaceTableCellsWithInputs(transactionId, transactionData) {
 function capitalizeFirstLetter(string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
 }
+
+function cancelEditTransaction(transactionId, transactionData) {
+    const tableRow = document.querySelector(`[data-transaction-id="${transactionId}"]`);
+
+    if (!tableRow) {
+        console.error(`Table row not found for transactionId ${transactionId}`);
+        return;
+    }
+
+    const fieldNames = ['date', 'title', 'amount', 'remarks'];
+
+    // Check if transactionData is defined and has the expected properties
+    if (transactionData && typeof transactionData === 'object') {
+        for (let i = 2; i <= 5; i++) {
+            const cell = tableRow.cells[i];
+
+            // Get the original value from the data-field-name attribute
+            const fieldName = fieldNames[i - 2];
+
+            // Check if the property exists in transactionData
+            if (transactionData.hasOwnProperty(fieldName)) {
+                const originalValue = transactionData[fieldName];
+
+                // Set the cell content back to the original value
+                cell.innerHTML = originalValue;
+            } else {
+                console.error(`Property '${fieldName}' not found in transactionData`);
+            }
+        }
+    } else {
+        console.error('Invalid or undefined transactionData');
+    }
+
+    // Restore the original edit and delete buttons
+    const editButton = document.createElement('button');
+    editButton.id = `editButton_${transactionId}`;
+    editButton.innerHTML = '<i class="uil uil-pen"></i>';
+    editButton.addEventListener('click', () => replaceTableCellsWithInputs(transactionId, transactionData));
+
+    const deleteButton = document.createElement('button');
+    deleteButton.id = `deleteButton_${transactionId}`;
+    deleteButton.innerHTML = '<i class="uil uil-trash-alt"></i>';
+    deleteButton.addEventListener('click', () => deleteTransaction(transactionId));
+
+    tableRow.cells[tableRow.cells.length - 2].innerHTML = '';
+    tableRow.cells[tableRow.cells.length - 2].appendChild(editButton);
+
+    tableRow.cells[tableRow.cells.length - 1].innerHTML = '';
+    tableRow.cells[tableRow.cells.length - 1].appendChild(deleteButton);
+}
+
+
+
+
+
 
 
 function saveEditedTransaction(transactionId) {
