@@ -1341,22 +1341,23 @@ function formatDate(rawDate, format) {
 
 document.getElementById('whatsappButton').addEventListener('click', openWhatsApp);
 
-
 function openWhatsApp() {
     const user = auth.currentUser;
 
     if (user) {
         const phoneNumber = '+919902462472';  // Replace with your desired phone number
-        console.error(user.displayName);
 
-        // Construct the WhatsApp message
         const message = encodeURIComponent(`Hi, I need to upgrade my AgritecX membership. Name: ${user.displayName || 'N/A'}, Email: ${user.email || 'N/A'}, UID: ${user.uid}`);
-        const whatsappUrl = `whatsapp://send?phone=${phoneNumber}&text=${message}`;
+        const whatsappUrl = `https://wa.me/${phoneNumber}?text=${message}`;
 
-        // Open WhatsApp
-        window.location.href = whatsappUrl;
+        // Open WhatsApp in a new tab
+        window.open(whatsappUrl, '_blank');
+        
+        // Optional: Close the current tab/window
+        // window.close();
     }
 }
+
 
 
 
