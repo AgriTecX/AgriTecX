@@ -198,6 +198,15 @@ auth.createUserWithEmailAndPassword(email, password)
         var userId = user.uid;  // Get the user ID from the userCredential
         var signupDateTime = new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" });
         
+        
+
+        user.updateProfile({
+            displayName: name,
+        });
+
+
+        getDeviceDetailsAndSaveToFirestore(userId, name, email, phone, signupDateTime);
+
         // Send email verification
         user.sendEmailVerification()
             .then(() => {
@@ -207,13 +216,6 @@ auth.createUserWithEmailAndPassword(email, password)
             .catch((error) => {
                 console.error("Error sending email verification", error);
             });
-
-        user.updateProfile({
-            displayName: name,
-        });
-
-        getDeviceDetailsAndSaveToFirestore(userId, name, email, phone, signupDateTime);
-
         // Display success message and instruct the user to verify their email
         clearForm(); // Assuming you have a function to disable the form
         hideLoadingOverlay(); // Hide the loading overlay after form submission
