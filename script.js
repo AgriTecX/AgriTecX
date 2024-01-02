@@ -1336,10 +1336,10 @@ function getUserData(userData) {
             document.getElementById('email').value = data.email|| '';
             document.getElementById('phone').value = data.phone || '';
 
-            const lastLoginDate = data.lastLogin ? formatDate(data.lastLogin, 'DD-MM-YY hh:mm A') : 'N/A';
-            const signupDate = data.signupDateTime ? formatDate(data.signupDateTime, 'DD-MM-YY hh:mm A') : 'N/A';
+            const lastLoginDate = data.lastLogin ? formatDates(data.lastLogin, 'DD-MM-YY hh:mm A') : 'N/A';
+            const signupDate = data.signupDateTime ? formatDates(data.signupDateTime, 'DD-MM-YY hh:mm A') : 'N/A';
 
-            document.getElementById('membershipInput').value = formatDate(data.membershipValidTill, 'DD-MM-YY hh:mm A');
+            document.getElementById('membershipInput').value = formatDates(data.membershipValidTill, 'DD-MM-YY hh:mm A');
             document.getElementById('lastLoginItem').innerHTML = `<strong>Last Login:</strong> ${lastLoginDate}`;
 
             // Display device details
@@ -1352,7 +1352,7 @@ function getUserData(userData) {
 
 
             document.getElementById('joinedDateItem').innerHTML = `<strong>Joined Date:</strong> ${signupDate}`;
-            displayMembershipValidity(formatDate(data.membershipValidTill, 'DD-MM-YY'));
+            displayMembershipValidity(formatDates(data.membershipValidTill, 'DD-MM-YY'));
         } else {
             console.log('No such document!');
         }
@@ -1363,7 +1363,7 @@ function getUserData(userData) {
 
 
 
-function formatDate(rawDate, format) {
+function formatDates(rawDate, format) {
     const date = new Date(rawDate);
 
     const day = date.getDate().toString().padStart(2, '0');
