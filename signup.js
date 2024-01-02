@@ -229,7 +229,7 @@ auth.createUserWithEmailAndPassword(email, password)
             // Display success message and instruct the user to verify their email
             clearForm(); // Assuming you have a function to disable the form
             hideLoadingOverlay(); // Hide the loading overlay after form submission
-            displaySuccessMessage("Registration successful! Please check your email for verification. Verified? Click here to <a href='login.html'>login</a>");
+            displaySuccessMessage("Registration successful! Please check your email for verification. Verified? Click here to <a href='login.html' style='color: blue;'>Login</a>");
 
 
             // Optionally, you can add a link/button for users to manually request a new verification email
