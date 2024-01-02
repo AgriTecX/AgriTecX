@@ -144,7 +144,7 @@
                         <span class="number" id="totalCropInspections" style="color:#45B8AC">0</span>
                     </div>
                     <div class="box box3" id="membershipCard">
-                        <i class="uil uil-exclamation-triangle" style="color:#B565A7" ></i>
+                        <i class="uil uil-processor" style="color:#B565A7" ></i>
                         <span class="text">Membership Valid Till</span>
                         <span class="number" id="membership"style="color:#B565A7">-</span>
                     </div>
@@ -298,16 +298,16 @@
     <form id="prescriptionForm">
         <div class="prescription-details">
             <label for="pesticideName">Pesticide Name:</label>
-            <input type="text" id="pesticideName" name="pesticideName" placeholder="Enter pesticide name" required>
+            <input type="text" id="pesticideName" name="pesticideName" required>
 
             <label for="gramPerML">Gram/ML:</label>
-            <input type="text" id="gramPerML" name="gramPerML" placeholder="Gram or ML per litre" required>
+            <input type="text" id="gramPerML" name="gramPerML" required>
 
             <label for="prescriptionDate">Date:</label>
             <input type="date" id="prescriptionDate" name="prescriptionDate" required>
 
             <label for="description">Description:</label>
-            <textarea id="prescriptionDescription" name="description" rows="4" placeholder="Comments(Optional)"></textarea>
+            <textarea id="prescriptionDescription" name="description" rows="4" required></textarea>
 
             <button type="submit" id="addPrescription" disabled>Submit Prescription</button>
         </div>
@@ -394,6 +394,79 @@
         </div>
     </div>
     </div>
+<!----------------------------------------------------------------------view content---------------------->
+<div class="dash-content" id="profile">
+    <div class="activity">
+        <div class="title greetings" id="tableTitle">
+            <i class="uil uil-user-circle"></i>
+            <span class="text">Profile</span>
+        </div>
+        <div id="profileDetails">
+            <form class="user-details" id="profileForm">
+            <div class="user-details-right">
+                    <div class="user-name">
+                        <label for="name"><i class="uil uil-user"></i> Name:</label>
+                        <div class="input-container">
+                            <input type="text" id="name" readonly>
+                            <button class="edit-button"><i class="uil uil-edit"></i></button>
+                        </div>
+                    </div>
+                    <div class="user-membership">
+                        <label for="membership"><i class="uil uil-processor"></i> Membership Valid Till:</label>
+                        <div class="input-container">
+                            <input type="text" id="membershipInput" readonly disabled>
+                            <button class="edit-button" id="whatsappButton"><i class="uil uil-whatsapp" style="color:var(--green);"></i></button>
+                        </div>
+                    </div>
+                    <div class="user-email">
+                        <label for="email"><i class="uil uil-envelope"></i> Email:</label>
+                        <div class="input-container">
+                            <input type="text" id="email" readonly>
+                            <button class="edit-button"><i class="uil uil-edit"></i></button>
+                            <label id="emailNotVerifiedText"></label>
+                        </div>
+                    </div>
+                    <div class="user-phno">
+                        <label for="phone"><i class="uil uil-phone"></i> Phone Number:</label>
+                        <div class="input-container">
+                            <input type="text" id="phone" readonly>
+                            <button class="edit-button"><i class="uil uil-edit"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+
+
+
+               <div class="activity-log">
+                    
+                    <hr>
+                    <div class="activity-log-item" id="lastLoginItem">
+                        <strong>Last Login:</strong> Loading...
+                    </div>
+                    <hr>
+                    <div class="activity-log-item" id="deviceDetailsItem">
+                        <strong>Device Details:</strong> Loading...
+                    </div>
+                    <hr>
+                    <div class="activity-log-item" id="joinedDateItem">
+                        <strong>Joined Date:</strong> Loading...
+                    </div>
+                    <!-- Add more activity-log-item divs as needed -->
+                </div>
+
+                <button id="logoutBtn" class="logout-btn ">
+                    Logout <i class="uil uil-signout"></i>
+                </button>
+
+            </form>
+        </div>
+    </div>
+</div>
+
+
+
+
 <!----------------------------------------------------------------------view content---------------------->
 
     </section>
