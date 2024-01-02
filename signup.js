@@ -191,35 +191,36 @@ function validateSignupForm() {
     var errorMessageElement = document.getElementById('signup-error-message');
 
     // Create user with email and password
-    auth.createUserWithEmailAndPassword(email, password)
+auth.createUserWithEmailAndPassword(email, password)
     .then((userCredential) => {
         // Signed up
         var user = userCredential.user;
         var userId = user.uid;  // Get the user ID from the userCredential
         var signupDateTime = new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" });
-         user.updateProfile({
+        
+        // Send email verification
+        user.sendEmailVerification()
+            .then(() => {
+                // Email sent
+                console.log("Email verification sent");
+            })
+            .catch((error) => {
+                console.error("Error sending email verification", error);
+            });
+
+        user.updateProfile({
             displayName: name,
-        })
+        });
 
         getDeviceDetailsAndSaveToFirestore(userId, name, email, phone, signupDateTime);
 
-        // Display success message and start countdown
+        // Display success message and instruct the user to verify their email
         clearForm(); // Assuming you have a function to disable the form
         hideLoadingOverlay(); // Hide the loading overlay after form submission
-        displaySuccessMessage("Registration successful! ");
+        displaySuccessMessage("Registration successful! Please check your email for verification.");
 
-        // Start the countdown
-        var countdown = 3;
-        var countdownInterval = setInterval(function () {
-            displaySuccessMessage("Registration successful! <br> Redirecting you to Home in " + countdown + " sec");
-
-            countdown--;
-            if (countdown <= 0) {
-                clearInterval(countdownInterval);
-                // Redirect to login page after countdown
-                window.location.href = 'index.html';
-            }
-        }, 1000);
+        // Optionally, you can add a link/button for users to manually request a new verification email
+        // Display a message like "Didn't receive the email? Click here to resend."
 
         console.log(user);
     })
@@ -231,12 +232,13 @@ function validateSignupForm() {
 
         if (errorCode === "auth/email-already-in-use") {
             displayErrorMessage("The email address is already in use by another account");
-        }else if (errorCode === "auth/invalid-email") {
+        } else if (errorCode === "auth/invalid-email") {
             displayErrorMessage("The email address is badly formatted");
         } else {
             displayErrorMessage(errorMessageText);
         }
     });
+
 
 function clearForm() {
     // Replace "your-form-id" with the actual ID of your form
@@ -324,6 +326,12 @@ function saveUserToFirestore(userId, name, email, phone, signupDateTime, deviceD
     // Get a reference to the Firestore database
     const db = firebase.firestore();
 
+    // Calculate the membershipValidTill date by adding 1 year to the current date and time
+    const membershipValidTill = new Date();
+    membershipValidTill.setFullYear(membershipValidTill.getFullYear() + 1);
+
+    // Convert the date to the "Asia/Kolkata" timezone
+    const membershipValidTillInTimeZone = membershipValidTill.toLocaleString("en-US", { timeZone: "Asia/Kolkata" });
 
     // Create an object with valid and defined values for each field, including deviceDetails
     const userData = {
@@ -331,18 +339,21 @@ function saveUserToFirestore(userId, name, email, phone, signupDateTime, deviceD
         email: email || '',
         phone: phone || '',
         signupDateTime: signupDateTime || new Date(),
-        deviceDetails: deviceDetails || {}  // Ensure deviceDetails is not undefined
+        deviceDetails: deviceDetails || {},  // Ensure deviceDetails is not undefined
+        membershipValidTill: membershipValidTillInTimeZone || null  // Add membershipValidTill field
     };
 
     // Add user data to the "users" collection
     db.collection("users").doc(userId).set(userData)
         .then(() => {
-            console.log("User data (including device details) saved to Firestore");
+            console.log("Successful");
         })
         .catch((error) => {
             console.error("Error saving user data:", error);
         });
 }
+
+
 
 
 
