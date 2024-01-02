@@ -130,35 +130,123 @@ auth.signInWithEmailAndPassword(email, password)
         // Signed in
         hideLoadingOverlay(); // Hide the loading overlay after form submission
         var user = userCredential.user;
-        displaySuccessMessage("Login successful!");
-        var countdown = 3;
-        var countdownInterval = setInterval(function () {
-            displaySuccessMessage("Already Logged in! <br> Redirecting you to home in " + countdown + " sec");
-            countdown--;
-            if (countdown <= 0) {
-                clearInterval(countdownInterval);
-                // Redirect to login page after countdown
-                window.location.href = 'index.html';
-            }
-        }, 1000);
-        console.log(user);
-        // Add your logic for successful sign-in
+        
+        // Call the function to get device details
+        getDeviceDetails()
+            .then(deviceDetails => {
+                // Update lastLogin and deviceDetails in the Firestore database
+                const userRef = db.collection('users').doc(user.uid);
+
+               const userDetails = {
+                    lastLogin: new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" }), // Update lastLogin with the current date and time
+                    deviceDetails: deviceDetails // Update deviceDetails
+                };
+
+                // Update the user details in the Firestore database
+                userRef.update(userDetails)
+                    .then(() => {
+                        // Display success message and redirect after updating the details
+                        displaySuccessMessage("Login successful!");
+                        var countdown = 3;
+                        var countdownInterval = setInterval(function () {
+                            displaySuccessMessage("Already Logged in! <br> Redirecting you to home in " + countdown + " sec");
+                            countdown--;
+                            if (countdown <= 0) {
+                                clearInterval(countdownInterval);
+                                // Redirect to home page after countdown
+                                window.location.href = 'index.html';
+                            }
+                        }, 1000);
+
+                        console.log(user);
+                        // Add your logic for successful sign-in
+                    })
+                    .catch((error) => {
+                        console.error("Error updating user details:", error);
+                        // Handle the error if updating user details fails
+                    });
+            });
     })
     .catch((error) => {
+        // Handle sign-in errors
         hideLoadingOverlay(); // Hide the loading overlay after form submission
         var errorCode = error.code;
         var errorMessageText = error.message; // Use a different variable for error message
-         if (errorCode === "auth/user-not-found") {
-                displayErrorMessage("Email not registered"); 
-            } else if (errorCode === "auth/invalid-login-credentials") {
-                displayErrorMessage("Invalid login credentials");  
-            } else {
-             displayErrorMessage(errorCode);  
-            }
-        console.error(errorMessageText);
 
-        
+        if (errorCode === "auth/user-not-found") {
+            displayErrorMessage("Email not registered");
+        } else if (errorCode === "auth/invalid-login-credentials") {
+            displayErrorMessage("Invalid login credentials");
+        } else {
+            displayErrorMessage(errorCode);
+        }
+
+        console.error(errorMessageText);
     });
+
+
+function getDeviceDetails() {
+    // Get browser and operating system
+    var userAgent = navigator.userAgent;
+    var browser = getBrowser(userAgent);
+    var os = getOperatingSystem(userAgent);
+
+    // Fetch IP address using a third-party service (ipinfo.io)
+    return fetch('https://ipinfo.io/json')
+        .then(response => response.json())
+        .then(data => {
+            // Use the obtained device details
+            return {
+                browser: browser || 'Unknown Browser',
+                os: os || 'Unknown OS',
+                ip: data.ip || 'Unknown IP'
+                // Add more details as needed
+            };
+        })
+        .catch(error => {
+            console.error('Error fetching IP address:', error);
+
+            // If an error occurs, return default or empty values
+            return {
+                browser: 'Unknown Browser',
+                os: 'Unknown OS',
+                ip: 'Unknown IP'
+                // Add more details as needed
+            };
+        });
+}
+function getBrowser(userAgent) {
+    // Implement logic to extract browser information from userAgent
+    // This is a simplified example
+    if (/chrome/i.test(userAgent)) {
+        return 'Chrome';
+    } else if (/firefox/i.test(userAgent)) {
+        return 'Firefox';
+    } else if (/safari/i.test(userAgent)) {
+        return 'Safari';
+    } else if (/msie|trident/i.test(userAgent)) {
+        return 'Internet Explorer';
+    } else {
+        return 'Unknown';
+    }
+}
+
+function getOperatingSystem(userAgent) {
+    // Implement logic to extract operating system information from userAgent
+    // This is a simplified example
+    if (/windows/i.test(userAgent)) {
+        return 'Windows';
+    } else if (/macintosh|mac os/i.test(userAgent)) {
+        return 'Mac OS';
+    } else if (/android/i.test(userAgent)) {
+        return 'Android';
+    } else if (/iphone/i.test(userAgent)) {
+        return 'iOS';
+    } else {
+        return 'Unknown';
+    }
+}
+
 
 function displaySuccessMessage(message) {
     var successMessageContainer = document.getElementById('login-error-message-container');
