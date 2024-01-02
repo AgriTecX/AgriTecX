@@ -26,6 +26,7 @@
     --blue:#2196F3;
     --blue-hover:#0b7dda;
     --disabled-btn-color:#DDD;
+    --purple:#B565A7;
     
     /* ====== Transition ====== */
     --tran-05: all 0.5s ease;
@@ -1223,4 +1224,141 @@ body.dark #allTransactionsTable input{
     100% {
         opacity: 0;
     }
+}
+
+
+
+
+
+
+
+#profileDetails form {
+    background-color: var(--panel-color);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    padding: 20px;
+    border-radius: 8px;
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+#profileDetails form label {
+    color: var(--black-light-color);
+    display: block;
+    margin-bottom: 8px;
+}
+
+#profileDetails form input,
+#profileDetails form textarea,
+#profileDetails form select {
+    width: 100%;
+    background-color: var(--box1-color);
+    color: var(--text-color);
+    border: 1px solid var(--green);
+    padding: 10px;
+    margin-bottom: 16px;
+    box-sizing: border-box;
+    border-radius: 4px;
+}
+
+.activity-log {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+}
+
+.activity-log h2 {
+    font-size: 20px;
+    color: var(--green);
+    text-align: center;
+}
+
+
+#joinedDateItem{
+    margin-bottom: 20px;
+
+}
+.activity-log-item strong {
+    display: inline-block;
+    min-width: 100px;
+    font-weight: bold;
+    margin-right: 10px;
+}
+
+.activity-log-item span {
+    flex: 1;
+}
+
+.user-details-right {
+    display: flex;
+    flex-direction: column;
+}
+
+.user-details-right .input-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.user-details-right input,
+.user-details-right {
+    margin-top: 5px;
+}
+
+.user-details-right .edit-button {
+    display: inline-block;
+    padding: 5px 8px;
+    text-decoration: none;
+    border: none;
+    font-size: 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    color: var(--text-color);
+    text-align: center;
+    background-color: var(--primary-color);
+    margin-left: 5px; /* Add some space between the input and the button */
+    margin-bottom: 10px;
+}
+
+.user-details-right input {
+    background-color: var(--panel-color);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    padding: 10px;
+    border-radius: 4px;
+    width: calc(100% - 8px); /* Adjust width and margin as needed */
+    box-sizing: border-box;
+    flex: 1;
+}
+
+.user-details-right input[disabled] {
+    background-color: var(--disabled-color);
+    cursor: not-allowed;
+}
+
+
+
+
+
+#logoutBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--red);
+    color: #fff;
+    padding: 2px 10px;
+    border: none;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: var(--tran-03);
+}
+
+#logoutBtn i {
+    margin-left: 8px;
+    font-size: 20px;
+}
+
+#logoutBtn:hover {
+    background-color: var(--red-hover);
 }
