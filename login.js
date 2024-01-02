@@ -124,48 +124,64 @@ function validateLoginForm() {
 var email = document.querySelector('.login_email').value;
 var password = document.querySelector('.login_password').value;
 var errorMessage = document.getElementById('login-error-message');
-
 auth.signInWithEmailAndPassword(email, password)
     .then((userCredential) => {
         // Signed in
         hideLoadingOverlay(); // Hide the loading overlay after form submission
         var user = userCredential.user;
-        
-        // Call the function to get device details
-        getDeviceDetails()
-            .then(deviceDetails => {
-                // Update lastLogin and deviceDetails in the Firestore database
-                const userRef = db.collection('users').doc(user.uid);
 
-               const userDetails = {
-                    lastLogin: new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" }), // Update lastLogin with the current date and time
-                    deviceDetails: deviceDetails // Update deviceDetails
-                };
+        // Check if the user's email is verified
+        if (user.emailVerified) {
+            // Call the function to get device details
+            getDeviceDetails()
+                .then(deviceDetails => {
+                    // Update lastLogin and deviceDetails in the Firestore database
+                    const userRef = db.collection('users').doc(user.uid);
 
-                // Update the user details in the Firestore database
-                userRef.update(userDetails)
-                    .then(() => {
-                        // Display success message and redirect after updating the details
-                        displaySuccessMessage("Login successful!");
-                        var countdown = 3;
-                        var countdownInterval = setInterval(function () {
-                            displaySuccessMessage("Already Logged in! <br> Redirecting you to home in " + countdown + " sec");
-                            countdown--;
-                            if (countdown <= 0) {
-                                clearInterval(countdownInterval);
-                                // Redirect to home page after countdown
-                                window.location.href = 'index.html';
-                            }
-                        }, 1000);
+                    const userDetails = {
+                        lastLogin: new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" }), // Update lastLogin with the current date and time
+                        deviceDetails: deviceDetails // Update deviceDetails
+                    };
 
-                        console.log(user);
-                        // Add your logic for successful sign-in
-                    })
-                    .catch((error) => {
-                        console.error("Error updating user details:", error);
-                        // Handle the error if updating user details fails
-                    });
-            });
+                    // Update the user details in the Firestore database
+                    userRef.update(userDetails)
+                        .then(() => {
+                            // Display success message and redirect after updating the details
+                            displaySuccessMessage("Login successful!");
+                            var countdown = 3;
+                            var countdownInterval = setInterval(function () {
+                                displaySuccessMessage("Already Logged in! <br> Redirecting you to home in " + countdown + " sec");
+                                countdown--;
+                                if (countdown <= 0) {
+                                    clearInterval(countdownInterval);
+                                    // Redirect to home page after countdown
+                                    window.location.href = 'index.html';
+                                }
+                            }, 1000);
+
+                            console.log(user);
+                            // Add your logic for successful sign-in
+                        })
+                        .catch((error) => {
+                            console.error("Error updating user details:", error);
+                            // Handle the error if updating user details fails
+                        });
+                });
+        } else {
+            auth.signOut()
+                .then(() => {
+                    // User is signed out
+                    console.log("User signed out after account creation");
+                })
+                .catch((error) => {
+                    console.error("Error signing out user", error);
+                });
+                
+            displayErrorMessage("Email not verified. Please check your email for verification.");
+            // Optionally, you can provide a link/button to resend the verification email
+            // Display a message like "Didn't receive the email? Click here to resend."
+            console.log("Email not verified");
+        }
     })
     .catch((error) => {
         // Handle sign-in errors
@@ -279,32 +295,42 @@ function showLoadingOverlay() {
         loadingOverlay.style.display = 'none';
     }
 
-
-    // Add this code where you initialize Firebase and set up your app
+// Add this code where you initialize Firebase and set up your app
 firebase.auth().onAuthStateChanged(function(user) {
     if (user) {
-        hideLoadingOverlay(); // Hide the loading overlay after form submission
-        var displayName = user.displayName;
-        displaySuccessMessage("Already Logged in as " + displayName + "!");
+        // User is logged in
+        if (user.emailVerified) {
+            // User's email is verified
+            hideLoadingOverlay(); // Hide the loading overlay after form submission
+            var displayName = user.displayName;
+            displaySuccessMessage("Already Logged in as " + displayName + "!");
 
-        var countdown = 3;
-        var countdownInterval = setInterval(function () {
-            displaySuccessMessage("Already Logged in as " + displayName + "! <br> Redirecting you to home in " + countdown + " sec");
-            countdown--;
-            if (countdown <= 0) {
-                clearInterval(countdownInterval);
-                // Redirect to login page after countdown
-                window.location.href = 'index.html';
-            }
-        }, 1000);
-        
+            var countdown = 3;
+            var countdownInterval = setInterval(function () {
+                displaySuccessMessage("Already Logged in as " + displayName + "! <br> Redirecting you to home in " + countdown + " sec");
+                countdown--;
+                if (countdown <= 0) {
+                    clearInterval(countdownInterval);
+                    // Redirect to home page after countdown
+                    window.location.href = 'index.html';
+                }
+            }, 1000);
+        } else {
+            // User's email is not verified
+            hideLoadingOverlay(); // Hide the loading overlay after form submission
+            displayErrorMessage("Email not verified. Please check your email for verification.");
+            // Optionally, you can provide a link/button to resend the verification email
+            // Display a message like "Didn't receive the email? Click here to resend."
+            console.log("Email not verified");
+        }
     } else {
+        // User is not logged in
         hideLoadingOverlay(); // Hide the loading overlay after form submission
-
-        
-
+        // Optionally, you can perform actions for users who are not logged in
+        console.log("User not logged in");
     }
-})
+});
+
 
 function displaySuccessMessage(message) {
     var successMessageContainer = document.getElementById('login-error-message-container');
