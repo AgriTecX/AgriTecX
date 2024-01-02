@@ -195,36 +195,47 @@ auth.createUserWithEmailAndPassword(email, password)
     .then((userCredential) => {
         // Signed up
         var user = userCredential.user;
-        var userId = user.uid;  // Get the user ID from the userCredential
+        var userId = user.uid;
         var signupDateTime = new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" });
-        
-        
 
+        // Update profile with display name
         user.updateProfile({
             displayName: name,
+        })
+        .then(() => {
+            // Display name updated, proceed with sending email verification
+
+            // Send email verification
+            user.sendEmailVerification()
+                .then(() => {
+                    // Email sent
+                    console.log("Email verification sent");
+                })
+                .catch((error) => {
+                    console.error("Error sending email verification", error);
+                });
+
+           
+        })
+        .catch((error) => {
+            console.error("Error updating profile", error);
+            // Handle any errors that may occur during profile update
+            hideLoadingOverlay(); // Hide the loading overlay after form submission
+            displayErrorMessage("Error updating profile");
         });
+         // Now proceed with saving additional details to Firestore or other tasks
+            getDeviceDetailsAndSaveToFirestore(userId, name, email, phone, signupDateTime);
+
+            // Display success message and instruct the user to verify their email
+            clearForm(); // Assuming you have a function to disable the form
+            hideLoadingOverlay(); // Hide the loading overlay after form submission
+            displaySuccessMessage("Registration successful! Please check your email for verification. Verified? Click here to <a href='login.html'>login</a>");
 
 
-        getDeviceDetailsAndSaveToFirestore(userId, name, email, phone, signupDateTime);
+            // Optionally, you can add a link/button for users to manually request a new verification email
+            // Display a message like "Didn't receive the email? Click here to resend."
 
-        // Send email verification
-        user.sendEmailVerification()
-            .then(() => {
-                // Email sent
-                console.log("Email verification sent");
-            })
-            .catch((error) => {
-                console.error("Error sending email verification", error);
-            });
-        // Display success message and instruct the user to verify their email
-        clearForm(); // Assuming you have a function to disable the form
-        hideLoadingOverlay(); // Hide the loading overlay after form submission
-        displaySuccessMessage("Registration successful! Please check your email for verification.");
-
-        // Optionally, you can add a link/button for users to manually request a new verification email
-        // Display a message like "Didn't receive the email? Click here to resend."
-
-        console.log(user);
+            console.log(user);
     })
     .catch((error) => {
         hideLoadingOverlay(); // Hide the loading overlay after form submission
@@ -240,6 +251,7 @@ auth.createUserWithEmailAndPassword(email, password)
             displayErrorMessage(errorMessageText);
         }
     });
+
 
 
 function clearForm() {
@@ -349,6 +361,14 @@ function saveUserToFirestore(userId, name, email, phone, signupDateTime, deviceD
     db.collection("users").doc(userId).set(userData)
         .then(() => {
             console.log("Successful");
+            auth.signOut()
+                .then(() => {
+                    // User is signed out
+                    console.log("User signed out after account creation");
+                })
+                .catch((error) => {
+                    console.error("Error signing out user", error);
+                });
         })
         .catch((error) => {
             console.error("Error saving user data:", error);
@@ -399,30 +419,43 @@ function getOperatingSystem(userAgent) {
     function hideLoadingOverlay() {
         loadingOverlay.style.display = 'none';
     }
+
+
+
 firebase.auth().onAuthStateChanged(function(user) {
     if (user) {
-        hideLoadingOverlay(); // Hide the loading overlay after form submission
-        var displayName = user.displayName;
-        displaySuccessMessage("Already Logged in as " + displayName + "!");
+        // User is logged in
+        if (user.emailVerified) {
+            // User's email is verified
+            hideLoadingOverlay(); // Hide the loading overlay after form submission
+            var displayName = user.displayName;
+            displaySuccessMessage("Already Logged in as " + displayName + "!");
 
-        var countdown = 3;
-        var countdownInterval = setInterval(function () {
-            displaySuccessMessage("Already Logged in as " + displayName + "! <br> Redirecting you to home in " + countdown + " sec");
-            countdown--;
-            if (countdown <= 0) {
-                clearInterval(countdownInterval);
-                // Redirect to login page after countdown
-                window.location.href = 'index.html';
-            }
-        }, 1000);
-        
+            var countdown = 3;
+            var countdownInterval = setInterval(function () {
+                displaySuccessMessage("Already Logged in as " + displayName + "! <br> Redirecting you to home in " + countdown + " sec");
+                countdown--;
+                if (countdown <= 0) {
+                    clearInterval(countdownInterval);
+                    // Redirect to home page after countdown
+                    window.location.href = 'index.html';
+                }
+            }, 1000);
+        } else {
+            // User's email is not verified
+            hideLoadingOverlay(); // Hide the loading overlay after form submission
+            // Optionally, you can display a message or take some action for unverified users
+            console.log("Email not verified. Please check your email for verification.");
+        }
     } else {
+        // User is not logged in
         hideLoadingOverlay(); // Hide the loading overlay after form submission
-
-        
-
+        // Optionally, you can perform actions for users who are not logged in
+        console.log("User not logged in.");
     }
-})
+});
+
+
 
 function displaySuccessMessage(message) {
     var successMessageContainer = document.getElementById('signup-error-message-container');
