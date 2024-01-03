@@ -1024,7 +1024,7 @@ body.dark #allTransactionsTable input{
 .modal-content {
     background-color: var(--panel-color);
     padding: 10px;
-    max-width: 80%;
+    max-width: 95%;
     text-align: center;
     border-radius: 8px;
     position: relative;
