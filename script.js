@@ -1281,9 +1281,10 @@ function handleDeletePrescription(prescriptionId, row) {
 function displayMembershipValidity(membershipValidTill) {
     const membershipElement = document.getElementById('membership');
     let showExactDate = true;
-
     function updateValidity() {
-        const membershipValidTillDate = new Date(membershipValidTill);
+        const parts = membershipValidTill.split('-');
+        const membershipValidTillDate = new Date(`${parts[1]}-${parts[0]}-${parts[2]}`);
+
         const today = new Date();
         const remainingDays = Math.ceil((membershipValidTillDate - today) / (1000 * 60 * 60 * 24));
 
