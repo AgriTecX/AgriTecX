@@ -40,7 +40,7 @@ body{
 }
 body.dark{
     --primary-color: #272c35;
-    --panel-color:#1a1f25;
+    --panel-color:#0b141b;
     --text-color: #CCC;
     --black-light-color: #CCC;
     --border-color: #4D4C4C;
