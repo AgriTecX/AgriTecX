@@ -1,11 +1,12 @@
 var firebaseConfig = {
-    apiKey: "AIzaSyC6WP8Q_AvAwkxsPfT-N-Y72Ku-tE1hNPc",
-    authDomain: "agritecx-1.firebaseapp.com",
-    projectId: "agritecx-1",
-    storageBucket: "agritecx-1.appspot.com",
-    messagingSenderId: "40220200327",
-    appId: "1:40220200327:web:b5fc2506f44cec69de5722",
-    measurementId: "G-W23KJ4ZJNQ"
+    apiKey: "AIzaSyA2lMKatZKkW693lc3-ccORP8Q5ausfSp8",
+    authDomain: "agritecx-app.firebaseapp.com",
+    databaseURL: "https://agritecx-app-default-rtdb.firebaseio.com",
+    projectId: "agritecx-app",
+    storageBucket: "agritecx-app.appspot.com",
+    messagingSenderId: "628609097557",
+    appId: "1:628609097557:web:c4554a1b9a2f9bbbb799dc",
+    measurementId: "G-M82W0GP4H4"
   };
 
 // Initialize Firebase
